@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#6f2638" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="format-detection" content="telephone=no" />
+<title>Treinamento Personalizado V0.12 — Online</title>
+<style>
+:root{--bg:#6f2638;--card:#fffaf4;--ink:#2a1f21;--muted:#74666a;--line:#e7d7d1;--accent:#7a263a;--accent2:#f4e5e7;--warn:#8b5a00}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;text-size-adjust:100%}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.wrap{max-width:900px;margin:0 auto;padding:20px}.top{margin-bottom:18px;color:#fff}.top h1{margin:0 0 4px;font-size:28px;color:#fff}.top p{margin:0;color:#f4dde4}
+.panel,.exercise{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.panel{padding:18px;margin-bottom:16px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}.field select,.field input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fffdf9;font-size:15px}
+button{border:0;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-height:44px}.primary{background:var(--accent);color:#fff}.soft{background:var(--accent2);color:var(--accent)}.ghost{background:#f0f2f3;color:#34434c}.danger{background:#fff1f1;color:#8b2f2f}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.summary{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:var(--accent2);color:var(--accent);font-size:12px;font-weight:700}.block{margin-top:18px}.block h3{margin:0 0 8px;font-size:16px}.exercise{padding:14px;margin:8px 0}.exhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.exname{font-weight:800}.presc{color:var(--muted);font-weight:700;white-space:nowrap}.reason{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);color:#34434c;line-height:1.45}.reason.show{display:block}.small-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.small-actions button{padding:7px 9px;font-size:12px}.whyall{margin-top:16px;padding:14px;border-radius:12px;background:#fff7f1;border:1px solid var(--line);line-height:1.45}.validation{margin-top:16px;padding:14px;border-radius:12px;background:#fffaf4;border:1px solid var(--line)}.validation h3{margin:0 0 8px}.validation p{margin:0 0 10px;color:var(--muted);font-size:13px}.hidden{display:none}.note{font-size:12px;color:var(--muted);margin-top:8px}.tech{display:inline-block;margin-left:6px;padding:2px 6px;border-radius:999px;background:#fff4dd;color:#7a4d00;font-size:11px;font-weight:800}.plan-week{margin:18px 0 26px}.plan-week>h2{margin:0 0 10px}.plan-day{background:#fffaf4;border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}.plan-day h3{margin:0 0 4px}.plan-day .meta{font-size:12px;color:var(--muted);margin-bottom:10px}.plan-ex{padding:8px 0;border-top:1px dashed var(--line)}.plan-ex:first-of-type{border-top:0}.plan-ex details{margin-top:5px}.plan-ex summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:12px}.toast{position:fixed;right:20px;bottom:20px;background:#172026;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;transform:translateY(10px);transition:.2s}.toast.show{opacity:1;transform:none}@media(max-width:680px){.grid{grid-template-columns:1fr}.summary{align-items:flex-start;flex-direction:column}.wrap{padding:max(12px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom))}.top h1{font-size:24px}.actions button{flex:1 1 145px}.field select,.field input{font-size:16px}.panel{padding:16px}.exercise{padding:13px}}
+.file-warning{display:block;margin:0 0 14px;padding:12px 14px;border-radius:12px;background:#fff4dd;color:#684300;border:1px solid #e8cf9d;font-size:13px;line-height:1.4}.file-warning strong{display:block;margin-bottom:3px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><h1>Treinamento Personalizado</h1><p>Gerador determinístico baseado nos treinos históricos da profissional · V0.12 · online/mobile · não repetição semanal · diário, semanal e mensal · tema marsala + off-white · explicações técnicas aprofundadas.</p></div>
+
+<div class="panel">
+  <div class="grid">
+    <div class="field"><label>Gerar</label><select id="period"><option value="daily">Diário</option><option value="weekly">Semanal</option><option value="monthly">Mensal</option></select></div>
+    <div class="field" id="dayField"><label>Dia</label><select id="day"><option value="mon">Segunda — Quadríceps</option><option value="tue">Terça — Superiores + cardio + abdômen</option><option value="wed">Quarta — Glúteos + posterior</option><option value="thu">Quinta — Superiores + cardio + abdômen</option><option value="fri">Sexta — Funcional</option></select></div>
+    <div class="field"><label>Duração por aula</label><select id="duration"><option value="30">30 min</option><option value="45" selected>45 min</option><option value="60">60 min</option></select></div>
+    <div class="field"><label>Intensidade</label><select id="intensity"><option value="light">Leve</option><option value="normal" selected>Normal</option><option value="hard">Forte</option></select></div>
+  </div>
+  <div class="field" style="margin-top:12px"><label>Observação / restrição (opcional)</label><input id="note" placeholder="Ex.: evitar impacto, sem step, dor no ombro..." /></div>
+  <div class="actions"><button class="primary" id="generate">Gerar diário</button><button class="ghost" id="alternate">Gerar outra opção</button><button class="ghost" id="clearRecent">Limpar histórico recente</button></div>
+  <div class="note">V0.11 Mobile: não repetição semanal, alternância terça/quinta, explicações técnicas aprofundadas e WhatsApp somente com nomes. No iPhone, use a versão publicada no Safari; o visualizador de arquivos pode bloquear os botões.</div>
+</div>
+<div id="planResult" class="hidden"></div>
+<div id="result" class="hidden">
+  <div class="summary"><div><span class="badge" id="focusBadge"></span><h2 id="title" style="margin:7px 0 0"></h2></div><div class="actions" style="margin:0"><button class="soft" id="copy">Copiar para WhatsApp</button><button class="ghost" id="like">★ Gostei</button></div></div>
+  <div id="blocks"></div>
+  <div class="whyall" id="whyall"></div><div class="whyall" id="audit"></div><div class="validation"><h3>Validação profissional</h3><p>Use estes botões quando sua esposa começar a avaliar os treinos. As respostas ficam somente neste navegador.</p><div class="actions"><button class="soft" id="approve">✅ Faria assim</button><button class="ghost" id="adjust">⚠️ Alteraria</button><button class="danger" id="reject">❌ Não faria</button><button class="ghost" id="copyValidation">Copiar resumo da validação</button></div><div class="note" id="validationCount"></div></div>
+</div>
+</div><div class="toast" id="toast">Copiado</div>
+<script>
+
+const memoryStore={};
+function storageGet(k){try{return window.localStorage.getItem(k)}catch(e){return Object.prototype.hasOwnProperty.call(memoryStore,k)?memoryStore[k]:null}}
+function storageSet(k,v){try{window.localStorage.setItem(k,v)}catch(e){memoryStore[k]=String(v)}}
+function storageRemove(k){try{window.localStorage.removeItem(k)}catch(e){delete memoryStore[k]}}
+async function copyTextMobile(t,msg='Copiado'){
+  try{
+    if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(t);toast(msg);return true}
+  }catch(e){}
+  try{
+    const ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.left='-9999px'; ta.style.top='0'; document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0,999999);
+    const ok=document.execCommand && document.execCommand('copy'); document.body.removeChild(ta); if(ok){toast(msg);return true}
+  }catch(e){}
+  try{if(navigator.share){await navigator.share({text:t});return true}}catch(e){}
+  window.prompt('Copie o texto abaixo:',t); return false;
+}
+const library=[
+{name:'Agachamento Goblet',roles:['knee'],days:['mon'],rep:'12–15x',why:'Movimento composto dominante de joelho; funciona bem como base do treino de quadríceps.'},
+{name:'Agachamento frontal com halter',roles:['knee'],days:['mon'],rep:'12x',why:'Mantém forte participação de quadríceps e permite variar o padrão principal sem mudar o objetivo.'},
+{name:'Agachamento livre',roles:['knee'],days:['mon','fri'],rep:'15x',why:'Movimento global e simples que integra quadríceps e glúteos.'},
+{name:'Cadeira extensora',roles:['extension'],days:['mon'],rep:'12–15x',why:'Adiciona estímulo direto de extensão do joelho e complementa os agachamentos.'},
+{name:'Afundo no step',roles:['unilateral'],days:['mon','wed'],rep:'12x cada perna',why:'Acrescenta trabalho unilateral e reduz a repetição de exercícios bilaterais.'},
+{name:'Passada',roles:['unilateral'],days:['mon','fri'],rep:'ida e volta',why:'Traz componente unilateral e dinâmico mantendo ênfase em membros inferiores.'},
+{name:'Búlgaro',roles:['unilateral'],days:['mon','wed'],rep:'10–12x cada perna',why:'É um composto unilateral recorrente no histórico, útil para equilíbrio entre lados.'},
+{name:'Isometria na parede',roles:['finish'],days:['mon','fri'],rep:'30s',why:'Finaliza com tempo sob tensão sem acrescentar outro padrão técnico complexo.'},
+{name:'Stiff',roles:['hinge'],days:['wed'],rep:'12–15x',why:'Trabalha posteriores e glúteos por extensão do quadril e é uma base recorrente desse dia.'},
+{name:'Cadeira flexora',roles:['kneeFlex'],days:['wed'],rep:'12–15x',why:'Complementa o stiff ao trabalhar posteriores pela flexão do joelho.'},
+{name:'Elevação pélvica',roles:['hipExt'],days:['wed'],rep:'12–15x',why:'Direciona a extensão do quadril para glúteos com menor complexidade técnica.'},
+{name:'Coice na polia',roles:['gluteIso'],days:['wed'],rep:'12x cada perna',why:'Acrescenta trabalho específico de glúteos depois dos movimentos compostos.'},
+{name:'Glúteo 4 apoios',roles:['gluteIso'],days:['wed'],rep:'12x cada perna',why:'Opção específica de glúteos que aparece repetidamente no histórico.'},
+{name:'Abdução de quadril',roles:['abduction'],days:['wed'],rep:'12–20x cada lado',why:'Acrescenta função de abdução sem repetir a mecânica do stiff ou da flexora.'},
+{name:'Agachamento sumô',roles:['sumo'],days:['wed','fri'],rep:'12–15x',why:'Complementa a sessão com base ampla e participação relevante de glúteos/adutores.'},
+{name:'Puxada alta',roles:['pullV'],days:['tue','thu'],rep:'12–15x',why:'Representa a puxada vertical e equilibra os movimentos de empurrar.'},
+{name:'Remada baixa',roles:['pullH'],days:['tue','thu'],rep:'12–15x',why:'Inclui puxada horizontal, frequentemente combinada com puxada alta no histórico.'},
+{name:'Remada curvada',roles:['pullH'],days:['tue','thu'],rep:'12–15x',why:'Varia a puxada horizontal mantendo o papel do bloco.'},
+{name:'Supino reto',roles:['push'],days:['tue','thu'],rep:'12x',why:'Movimento de empurrar que equilibra os exercícios de puxada.'},
+{name:'Flexão de braço no step',roles:['push'],days:['tue','thu','fri'],rep:'12x',why:'Alternativa de empurrar com peso corporal e fácil ajuste de dificuldade.'},
+{name:'Desenvolvimento',roles:['shoulder'],days:['tue','thu'],rep:'12x',why:'Inclui empurrar vertical e trabalho de ombros.'},
+{name:'Elevação lateral + frontal',roles:['shoulderAcc'],days:['tue','thu'],rep:'12/12x',why:'Complementa o desenvolvimento com trabalho acessório de ombros.'},
+{name:'Rosca direta',roles:['biceps'],days:['tue','thu'],rep:'12–15x',why:'Acrescenta trabalho direto de bíceps após movimentos de puxada.'},
+{name:'Rosca martelo',roles:['biceps'],days:['tue','thu'],rep:'12–15x',why:'Varia o trabalho de flexores do cotovelo sem mudar a função do bloco.'},
+{name:'Tríceps corda',roles:['triceps'],days:['tue','thu'],rep:'12–15x',why:'Acrescenta trabalho direto de tríceps após os movimentos de empurrar.'},
+{name:'Tríceps banco no step',roles:['triceps'],days:['tue','thu'],rep:'12x',why:'Alternativa simples de tríceps usando apoio.'},
+{name:'Abdominal curtinho',roles:['core'],days:['tue','thu','fri'],rep:'20–30x',why:'Core simples e recorrente para fechar ou intercalar blocos.'},
+{name:'Abdominal remador',roles:['core'],days:['tue','thu','fri'],rep:'12–15x',why:'Varia o padrão abdominal e aparece com frequência no histórico.'},
+{name:'Abdominal bicicleta',roles:['core'],days:['tue','thu','fri'],rep:'15–20x',why:'Acrescenta rotação e alternância ao bloco de core.'},
+{name:'Prancha',roles:['core'],days:['tue','thu','fri'],rep:'30s',why:'Inclui estabilização de tronco em vez de repetir apenas flexões do tronco.'},
+{name:'Corda naval',roles:['metabolic'],days:['tue','thu','fri'],rep:'20–30s',why:'Eleva a demanda metabólica sem depender de corrida.'},
+{name:'Wall ball',roles:['metabolic'],days:['tue','thu','fri'],rep:'12–15x',why:'Integra membros inferiores e superiores em estímulo global.'},
+{name:'Slam ball',roles:['metabolic'],days:['tue','thu','fri'],rep:'20–30s',why:'Oferece estímulo de potência e condicionamento em bloco curto.'},
+{name:'Swing',roles:['metabolic'],days:['tue','thu','fri'],rep:'12–15x',why:'Combina potência de quadril e condicionamento.'},
+{name:'Polichinelo',roles:['cardio'],days:['tue','thu','fri'],rep:'20–30s',why:'Cardio simples, rápido e fácil de encaixar entre blocos.'},
+{name:'Corrida estacionária',roles:['cardio'],days:['tue','thu','fri'],rep:'20–30s',why:'Aumenta frequência cardíaca com pouco espaço.'},
+{name:'Burpee',roles:['metabolic'],days:['tue','thu','fri'],rep:'8–12x',why:'Movimento global de alta demanda, reservado para intensidade normal/forte.'},
+{name:'Sprawl',roles:['metabolic'],days:['tue','thu','fri'],rep:'20–30s',why:'Alternativa metabólica dinâmica que evita repetir burpee.'},
+{name:'Subida cadenciada no step',roles:['locomotion'],days:['fri'],rep:'15x',why:'Funciona como componente de locomoção e coordenação no circuito funcional.'},
+{name:'Deslocamento lateral na escada',roles:['locomotion'],days:['fri'],rep:'ida e volta',why:'Acrescenta deslocamento lateral e coordenação.'},
+{name:'Remada no TRX',roles:['pullH'],days:['tue','thu','fri'],rep:'12–15x',why:'Puxada horizontal com peso corporal; aparece com alta frequência no histórico e permite variar a remada tradicional.'},
+{name:'Supino inclinado + crucifixo inclinado',roles:['push'],days:['tue','thu'],rep:'12/12x',why:'Combina empurrar e adução horizontal em um mesmo bloco, padrão recorrente no histórico.'},
+{name:'Tríceps francês',roles:['triceps'],days:['tue','thu'],rep:'12–15x',why:'Varia o trabalho direto de tríceps sem repetir a mesma execução da corda.'},
+{name:'Tríceps coice',roles:['triceps'],days:['tue','thu'],rep:'12–15x',why:'Outra opção de extensão de cotovelo para variar o estímulo de tríceps.'},
+{name:'Crucifixo inverso',roles:['shoulderAcc'],days:['tue','thu'],rep:'12–15x',why:'Acrescenta trabalho posterior de ombros e ajuda a equilibrar exercícios de empurrar.'},
+{name:'Elevação lateral',roles:['shoulderAcc'],days:['tue','thu'],rep:'12–15x',why:'Acessório simples para ombros, útil quando já existe um exercício principal de empurrar.'},
+{name:'Abdominal oblíquo',roles:['core'],days:['tue','thu','fri'],rep:'15–20x cada lado',why:'Adiciona componente lateral/rotacional ao core.'},
+{name:'Abdominal infra pernas estendidas',roles:['core'],days:['tue','thu','fri'],rep:'12–15x',why:'Varia o bloco abdominal com maior participação da região inferior do abdômen.'},
+{name:'Prancha alta com toque no ombro',roles:['core'],days:['tue','thu','fri'],rep:'20–30s',why:'Combina estabilização de tronco e controle anti-rotação.'},
+{name:'Trampolim',roles:['cardio'],days:['tue','thu','fri'],rep:'30s',why:'Opção cardiovascular recorrente no histórico para variar corrida e polichinelo.'},
+{name:'Escalada',roles:['metabolic'],days:['tue','thu','fri'],rep:'20–30s',why:'Movimento global que combina core e condicionamento.'},
+{name:'Abre e fecha no step',roles:['cardio'],days:['tue','thu','fri'],rep:'20–30s',why:'Cardio coordenativo com step, recorrente nos treinos históricos.'},
+{name:'Flexão de joelho com caneleira',roles:['kneeFlex'],days:['wed'],rep:'12–15x cada perna',why:'Substitui a flexora quando se deseja trabalhar flexão de joelho com equipamento simples.'},
+{name:'Ponte unilateral',roles:['hipExt'],days:['wed'],rep:'12x cada perna',why:'Mantém extensão do quadril e acrescenta componente unilateral.'},
+{name:'Abdução deitada com caneleira',roles:['abduction'],days:['wed'],rep:'15x cada lado',why:'Varia o trabalho de abdução sem mudar a função do bloco.'},
+{name:'Afundo alternado',roles:['unilateral'],days:['mon','wed','fri'],rep:'12x cada perna',why:'Alternativa de trabalho unilateral frequente no histórico.'},
+{name:'Subida lateral no step',roles:['unilateral'],days:['mon','wed','fri'],rep:'12–15x cada lado',why:'Combina unilateralidade e controle lateral, útil para variar afundos.'},
+{name:'Agachamento com barra hexagonal + panturrilha',roles:['knee'],days:['mon','fri'],rep:'12x',why:'Varia o exercício composto de membros inferiores e acrescenta panturrilha na mesma sequência.'},
+{name:'Agachamento na polia baixa',roles:['knee'],days:['mon'],rep:'15x',why:'Varia o padrão de agachamento mantendo ênfase dominante de joelho.'},
+{name:'Agachamento paralelo + avanço',roles:['knee'],days:['mon'],rep:'12/12x',why:'Combinação presente no histórico que une exercício bilateral e deslocamento unilateral.'},
+{name:'Levantamento terra sumô',roles:['hinge'],days:['wed','fri'],rep:'12x',why:'Varia a dobradiça de quadril com base ampla e participação relevante de glúteos e posteriores.'},
+{name:'Stiff unilateral',roles:['hinge'],days:['wed'],rep:'10–12x cada perna',why:'Mantém o padrão de dobradiça e acrescenta assimetria controlada.'},
+{name:'Puxada unilateral + bilateral',roles:['pullV'],days:['tue','thu'],rep:'12/12x',why:'Varia a puxada vertical alternando trabalho unilateral e bilateral, padrão presente no histórico.'},
+{name:'Puxada alta aberta + fechada',roles:['pullV'],days:['tue','thu'],rep:'10/10x',why:'Mantém a função de puxada vertical e varia a pegada dentro do mesmo bloco.'},
+{name:'Desenvolvimento neutro',roles:['shoulder'],days:['tue','thu'],rep:'12x',why:'Varia o empurrar vertical com pegada neutra sem alterar a função principal.'},
+{name:'Desenvolvimento unilateral + bilateral',roles:['shoulder'],days:['tue','thu'],rep:'12/12x',why:'Alterna unilateral e bilateral no mesmo padrão de empurrar vertical.'},
+{name:'Supino reto + flexão',roles:['push'],days:['tue','thu'],rep:'12/10x',why:'Combinação recorrente no histórico que mantém o padrão de empurrar com duas demandas diferentes.'},
+{name:'Remada baixa aberta + fechada',roles:['pullH'],days:['tue','thu'],rep:'12/12x',why:'Varia a puxada horizontal por mudança de pegada sem mudar o papel do exercício.'},
+{name:'Remada curvada + crucifixo inverso',roles:['pullH'],days:['tue','thu'],rep:'12/12x',why:'Combina puxada horizontal e trabalho posterior de ombro em uma sequência recorrente.'},
+{name:'Salto alternado no step',roles:['locomotion'],days:['fri'],rep:'20x',why:'Acrescenta coordenação e deslocamento rápido no step para o circuito funcional.'},
+{name:'Salto lateral no step',roles:['locomotion'],days:['fri'],rep:'20x',why:'Varia a locomoção com componente lateral e maior demanda cardiovascular.'},
+{name:'Prancha alta com remada unilateral',roles:['pullH'],days:['fri'],rep:'12x',why:'Combina estabilização de core com puxada unilateral, útil no funcional.'},
+{name:'Desenvolvimento com agachamento',roles:['push'],days:['fri'],rep:'12x',why:'Movimento global que integra membros inferiores e empurrar acima da cabeça dentro do circuito.'}
+];
+const plans={
+ mon:{focus:'Quadríceps',roles:['knee','extension','unilateral','knee','finish']},
+ wed:{focus:'Glúteos + posterior',roles:['hinge','kneeFlex','unilateral','hipExt','gluteIso','abduction']},
+ tue:{focus:'Superiores + cardio + abdômen',roles:['pullV','push','pullH','shoulder','biceps','triceps','core','metabolic']},
+ thu:{focus:'Superiores + cardio + abdômen',roles:['pullH','push','pullV','shoulderAcc','triceps','biceps','core','cardio']},
+ fri:{focus:'Funcional',roles:['locomotion','knee','push','core','metabolic','cardio']}
+};
+let state={exercises:[],seed:0,plan:[],period:'daily'};
+const dayOrder=['mon','tue','wed','thu','fri'];
+const dayNames={mon:'Segunda',tue:'Terça',wed:'Quarta',thu:'Quinta',fri:'Sexta'};
+function weekKey(){
+ const d=new Date(), jan4=new Date(d.getFullYear(),0,4), day=(d.getDay()+6)%7;
+ const mon=new Date(d); mon.setDate(d.getDate()-day); mon.setHours(0,0,0,0);
+ const jan4day=(jan4.getDay()+6)%7, firstMon=new Date(jan4); firstMon.setDate(jan4.getDate()-jan4day); firstMon.setHours(0,0,0,0);
+ const wk=1+Math.round((mon-firstMon)/604800000);
+ return `${mon.getFullYear()}-W${String(wk).padStart(2,'0')}`;
+}
+function loadDailyWeek(){
+ const raw=JSON.parse(storageGet('tp_week_usage')||'{}');
+ return raw.key===weekKey()?raw:{key:weekKey(),days:{}};
+}
+function saveDailyDay(day,names){
+ const w=loadDailyWeek(); w.days[day]=[...new Set(names)]; storageSet('tp_week_usage',JSON.stringify(w));
+}
+function usedOtherDays(day){
+ const w=loadDailyWeek(); return Object.entries(w.days||{}).filter(([d])=>d!==day).flatMap(([,xs])=>xs||[]);
+}
+const recent=()=>JSON.parse(storageGet('tp_recent')||'[]');
+function saveRecent(names){const merged=[...names,...recent()].filter((v,i,a)=>a.indexOf(v)===i).slice(0,24);storageSet('tp_recent',JSON.stringify(merged));}
+function isHardBlocked(x,note){
+  const n=(note||'').toLowerCase(), name=x.name.toLowerCase();
+  if(n.includes('sem step')&&name.includes('step'))return true;
+  if(n.includes('sem trx')&&name.includes('trx'))return true;
+  if(n.includes('sem polia')&&name.includes('polia'))return true;
+  if((n.includes('sem impacto')||n.includes('evitar impacto')||n.includes('baixo impacto'))&&['burpee','polichinelo','sprawl','trampolim','abre e fecha','corrida estacionária','salto'].some(k=>name.includes(k)))return true;
+  return false;
+}
+function candidates(day,role,note,extraAvoid=[]){let arr=library.filter(x=>x.days.includes(day)&&x.roles.includes(role)&&!isHardBlocked(x,note));const r=recent();arr.sort((a,b)=>score(b,day,note,r,extraAvoid)-score(a,day,note,r,extraAvoid));return arr}
+const freq={'Abdominal curtinho':28,'Rosca martelo':25,'Rosca direta':22,'Polichinelo':20,'Stiff':18,'Wall ball':18,'Abdominal remador':17,'Agachamento sumô':16,'Remada no TRX':16,'Swing':16,'Coice na polia':15,'Slam ball':15,'Búlgaro':15,'Trampolim':15,'Corda naval':14,'Prancha':13,'Puxada alta':12,'Supino reto':12};
+function restrictionPenalty(x,n){const name=x.name.toLowerCase();let p=0;if((n.includes('ombro')||n.includes('dor no ombro'))&&['desenvolvimento','elevação lateral','flexão de braço','supino','slam ball','corda naval','wall ball'].some(k=>name.includes(k)))p-=35;if((n.includes('joelho')||n.includes('dor no joelho'))&&['afundo','passada','búlgaro','subida','agachamento','polichinelo','burpee'].some(k=>name.includes(k)))p-=35;return p}
+function score(x,day,note,r,extraAvoid=[]){let s=10 + Math.min(4,(freq[x.name]||0)/7); if(r.includes(x.name))s-=5; if(extraAvoid.includes(x.name))s-=7; const fav=JSON.parse(storageGet('tp_favorites')||'[]'); if(fav.includes(x.name))s+=1.5; const avoid=JSON.parse(storageGet('tp_avoid')||'[]'); if(avoid.includes(x.name))s-=12; s+=restrictionPenalty(x,(note||'').toLowerCase()); s += ((hash(x.name+state.seed)%7)/10); return s}
+function hash(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h}
+function targetCount(duration,day){
+  if(day==='tue'||day==='thu') return duration==30?9:duration==45?12:15;
+  if(day==='fri') return duration==30?8:duration==45?10:12;
+  return duration==30?7:duration==45?9:12;
+}
+function roleSequence(day,n){
+ const seq={
+  mon:['knee','extension','unilateral','knee','finish','unilateral','extension','knee','finish','unilateral','extension','knee'],
+  wed:['hinge','kneeFlex','unilateral','hipExt','gluteIso','abduction','kneeFlex','unilateral','gluteIso','hipExt','abduction','hinge'],
+  // Terça: inicia por empurrar/ombro e intercala puxadas; Quinta: inicia por puxadas e acessórios.
+  // Ambos continuam completos, mas usam famílias e ordem diferentes para reproduzir a alternância observada no histórico.
+  tue:['cardio','push','shoulder','triceps','pullH','biceps','pullV','core','metabolic','core','push','pullH','biceps','triceps','metabolic'],
+  thu:['cardio','pullV','pullH','biceps','push','shoulderAcc','triceps','core','metabolic','core','pullH','push','triceps','biceps','cardio'],
+  fri:['locomotion','knee','metabolic','core','push','cardio','pullH','unilateral','metabolic','core','knee','cardio']
+ }[day]; return seq.slice(0,n);
+}
+function techniqueFor(ex,intensity){if(intensity!=='hard')return '';const n=ex.name.toLowerCase();if(ex.roles.includes('extension')||ex.roles.includes('kneeFlex'))return (hash(ex.name+state.seed)%3===0)?'drop set final':'';if(ex.roles.includes('finish')||n.includes('prancha')||n.includes('isometria'))return 'isometria controlada';if(ex.roles.includes('gluteIso')||ex.roles.includes('abduction'))return (hash(ex.name+state.seed)%4===0)?'segurar 2s no pico':'';return ''}
+function prescription(ex,intensity){let p=ex.rep;if(intensity==='light' && /12–15|12-15/.test(p))p='10–12x'; if(intensity==='hard' && /12–15|12-15/.test(p))p='15x'; let t=techniqueFor(ex,intensity);return t?`${p} · ${t}`:p}
+function generateWorkout(day,duration,intensity,note,extraAvoid=[],hardAvoid=[]){
+ state.seed++; let n=targetCount(duration,day), roles=roleSequence(day,n), chosen=[];
+ const hard=new Set(hardAvoid||[]);
+ for(const role of roles){
+   let arr=candidates(day,role,note,extraAvoid).filter(x=>!hard.has(x.name)&&!chosen.some(c=>c.name===x.name));
+   // Regra semanal: só relaxa o bloqueio se não houver nenhuma alternativa compatível para a função.
+   if(!arr.length){
+     arr=library.filter(x=>x.days.includes(day)&&x.roles.includes(role)&&!isHardBlocked(x,note)&&!hard.has(x.name)&&!chosen.some(c=>c.name===x.name));
+   }
+   if(!arr.length){
+     arr=library.filter(x=>x.days.includes(day)&&!isHardBlocked(x,note)&&!hard.has(x.name)&&!chosen.some(c=>c.name===x.name));
+   }
+   if(arr.length) chosen.push({...arr[0],role,presc:prescription(arr[0],intensity)});
+ }
+ saveRecent(chosen.map(x=>x.name));
+ return chosen;
+}
+function make(day,duration,intensity,note){
+ state.period='daily'; state.plan=[];
+ const weeklyHardAvoid=usedOtherDays(day);
+ state.exercises=generateWorkout(day,duration,intensity,note,[],weeklyHardAvoid);
+ saveDailyDay(day,state.exercises.map(x=>x.name));
+ document.querySelector('#planResult').classList.add('hidden');
+ render(day,duration,intensity);
+}
+function buildPlan(period,duration,intensity,note){
+ state.period=period; state.plan=[]; document.querySelector('#result').classList.add('hidden');
+ const weeks=period==='weekly'?1:4, usedByDay={mon:[],tue:[],wed:[],thu:[],fri:[]};
+ for(let w=1;w<=weeks;w++){
+   const week={week:w,days:[]};
+   const usedThisWeek=[];
+   for(const d of dayOrder){
+     const monthlySoftAvoid=period==='monthly'?usedByDay[d]:[];
+     const exercises=generateWorkout(d,duration,intensity,note,monthlySoftAvoid,usedThisWeek);
+     usedThisWeek.push(...exercises.map(x=>x.name));
+     if(period==='monthly') usedByDay[d]=[...new Set([...usedByDay[d],...exercises.map(x=>x.name)])];
+     week.days.push({day:d,focus:plans[d].focus,exercises,audit:qualityAudit(d,exercises,note)});
+   }
+   state.plan.push(week);
+ }
+ renderPlan(period,duration,intensity,note);
+}
+function renderPlan(period,duration,intensity,note){
+ const el=document.querySelector('#planResult'); el.classList.remove('hidden');
+ let html=`<div class="summary"><div><span class="badge">${period==='weekly'?'Plano semanal':'Plano mensal'}</span><h2 style="margin:7px 0 0">${period==='weekly'?'Semana completa':'4 semanas · 20 aulas'}</h2></div><div class="actions" style="margin:0"><button class="soft" onclick="copyCurrentPlan()">Copiar plano inteiro</button></div></div><div class="whyall"><b>Auditoria do plano</b><br>${planAuditSummary(period)}</div>`;
+ for(const week of state.plan){
+   if(period==='monthly')html+=`<div class="plan-week"><div class="summary"><h2>Semana ${week.week}</h2><button class="ghost" onclick="copyWeek(${week.week-1})">Copiar semana</button></div>`;
+   for(const item of week.days){
+     html+=`<div class="plan-day"><div class="summary"><div><h3>${dayNames[item.day]} — ${item.focus}</h3><div class="meta">${duration} min · ${intensity==='light'?'Leve':intensity==='hard'?'Forte':'Normal'}</div></div><button class="ghost" onclick="copyPlanDay(${week.week-1},'${item.day}')">Copiar dia</button></div>`;
+     for(const [blockName,arr] of blockGroups(item.day,item.exercises)){
+       html+=`<div class="block"><h3>${blockName}</h3>`;
+       for(const x of arr){html+=`<div class="plan-ex"><b>${x.name}</b> — ${x.presc}<details><summary>Por quê?</summary><b>Racional biomecânico:</b> ${technicalRoleReason(x.role)}<br><br><b>Por que foi escolhido:</b> ${x.why}<br><br><b>Função:</b> ${roleLabel(x.role)}.</details></div>`}
+       html+='</div>';
+     }
+     html+=`<div class="whyall"><b>Por que esta combinação?</b><br>${overall(item.day,item.exercises)}</div><div class="note">${item.audit}</div></div>`;
+   }
+   if(period==='monthly')html+='</div>';
+ }
+ if(note)html+=`<div class="whyall"><b>Observação aplicada ao plano:</b><br>${escapeHtml(note)}</div>`;
+ el.innerHTML=html;
+ window.scrollTo({top:el.offsetTop-10,behavior:'smooth'});
+}
+
+function overlapPct(a,b){const A=new Set(a.map(x=>x.name)),B=new Set(b.map(x=>x.name));let same=0;A.forEach(x=>{if(B.has(x))same++});return Math.round((same/Math.max(1,Math.min(A.size,B.size)))*100)}
+function planAuditSummary(period){
+ const all=state.plan.flatMap(w=>w.days); const bad=all.filter(x=>!x.audit.startsWith('✓'));
+ let msg=bad.length?`⚠ ${bad.length} aula(s) precisam de revisão automática.`:`✓ Todas as ${all.length} aulas passaram nas regras estruturais básicas.`;
+ let weeklyRepeats=0;
+ for(const w of state.plan){
+   const seen=new Set();
+   for(const item of w.days){for(const x of item.exercises){if(seen.has(x.name))weeklyRepeats++; else seen.add(x.name);}}
+ }
+ msg+=weeklyRepeats===0?' ✓ Nenhum exercício foi repetido dentro da mesma semana.':` ⚠ Foram detectadas ${weeklyRepeats} repetição(ões) dentro da mesma semana.`;
+ if(period==='monthly'){
+   let overlaps=[];
+   for(const d of dayOrder){const days=state.plan.map(w=>w.days.find(x=>x.day===d));for(let i=1;i<days.length;i++)overlaps.push(overlapPct(days[i-1].exercises,days[i].exercises));}
+   const avg=overlaps.length?Math.round(overlaps.reduce((a,b)=>a+b,0)/overlaps.length):0;
+   msg+=` Repetição média entre o mesmo dia de semanas consecutivas: ${avg}%.`;
+   if(avg<=45) msg+=' ✓ Variedade mensal considerada boa.'; else if(avg<=65) msg+=' ⚠ Variedade aceitável, mas ainda moderada.'; else msg+=' ⚠ Variedade baixa; gere outro mês ou revise favoritos/evitados.';
+ }
+ return msg;
+}
+function dayPlanText(item){return item.exercises.map(x=>x.name).join('\n')}
+window.copyPlanDay=async(weekIndex,day)=>{const item=state.plan[weekIndex].days.find(x=>x.day===day),t=dayPlanText(item);await copyTextMobile(t,'Nomes dos exercícios copiados')};
+window.copyWeek=async(weekIndex)=>{const week=state.plan[weekIndex];let t=week.days.flatMap(item=>item.exercises.map(x=>x.name)).join('\n');await copyTextMobile(t,'Nomes da semana copiados')};
+
+function planWhatsapp(){return state.plan.flatMap(w=>w.days.flatMap(item=>item.exercises.map(x=>x.name))).join('\n')}
+window.copyCurrentPlan=async()=>{const t=planWhatsapp();await copyTextMobile(t,'Nomes dos exercícios copiados')};
+function chunk(arr,size){let out=[];for(let i=0;i<arr.length;i+=size)out.push(arr.slice(i,i+size));return out}
+function blockGroups(day,exs){
+ if(day==='tue'||day==='thu'){
+   const cardioLead=exs.filter(x=>['cardio','metabolic'].includes(x.role)).slice(0,1);
+   const force=exs.filter(x=>!['core','metabolic','cardio'].includes(x.role));
+   const cores=exs.filter(x=>x.role==='core');
+   const metab=exs.filter(x=>['metabolic','cardio'].includes(x.role)).slice(1);
+   let groups=[]; if(cardioLead.length)groups.push(['Aquecimento / ativação',cardioLead]);
+   chunk(force,4).forEach((a,i)=>groups.push([`Força de superiores ${i+1}`,a]));
+   if(cores.length)groups.push(['Abdômen',cores]); if(metab.length)groups.push(['Cardio / metabólico',metab]); return groups.filter(x=>x[1].length)
+ }
+ if(day==='fri')return chunk(exs,4).map((a,i)=>[`Circuito ${i+1}`,a]);
+ return chunk(exs,4).map((a,i)=>[`Bloco ${i+1}`,a]);
+}
+function qualityAudit(day,exs,note){
+ const roles=new Set(exs.map(x=>x.role)), issues=[];
+ if(new Set(exs.map(x=>x.name)).size!==exs.length)issues.push('há exercício repetido');
+ if(day==='mon'&&![...['knee','extension','unilateral']].every(r=>roles.has(r)))issues.push('faltou uma função-base de quadríceps');
+ if(day==='wed'&&![...['hinge','kneeFlex','hipExt']].every(r=>roles.has(r)))issues.push('faltou uma função-base de posterior/glúteos');
+ if((day==='tue'||day==='thu')&&!(roles.has('push')&&(roles.has('pullH')||roles.has('pullV'))&&roles.has('core')&&(roles.has('cardio')||roles.has('metabolic'))))issues.push('faltou equilíbrio entre força, core e condicionamento');
+ if(day==='fri'&&!(roles.has('core')&&(roles.has('cardio')||roles.has('metabolic'))))issues.push('faltou core ou condicionamento');
+ const blocked=exs.filter(x=>isHardBlocked(x,note)); if(blocked.length)issues.push('uma restrição forte não foi respeitada');
+ return issues.length?`⚠ Revisar: ${issues.join('; ')}.`:'✓ Estrutura coerente com as regras atuais e sem conflito forte detectado.';
+}
+function technicalRoleReason(r){return({
+ knee:'Predomina a extensão do joelho em cadeia cinética fechada, com alta participação do quadríceps e contribuição de glúteos. É adequado como movimento composto porque permite distribuir carga entre múltiplas articulações e gerar tensão mecânica elevada antes dos exercícios mais analíticos.',
+ extension:'É uma ação monoarticular de extensão do joelho, com menor exigência de estabilização e maior direcionamento local ao quadríceps. É útil para complementar exercícios multiarticulares, aumentando volume específico sem repetir toda a demanda sistêmica do agachamento.',
+ unilateral:'A base unilateral aumenta a exigência de controle frontal e sagital, reduz compensações entre os lados e acrescenta estímulo com menor necessidade de carga externa absoluta. Também diversifica o padrão em relação aos exercícios bilaterais.',
+ finish:'A isometria ou finalização prolonga o tempo sob tensão e a fadiga periférica sem introduzir nova habilidade motora complexa, sendo adequada para encerrar o bloco quando a técnica já pode estar mais vulnerável à fadiga.',
+ hinge:'É um padrão de dobradiça de quadril, com maior demanda dos extensores do quadril e dos isquiotibiais em comprimentos musculares maiores. Complementa exercícios de flexão de joelho porque trabalha a cadeia posterior por outra função articular.',
+ kneeFlex:'Prioriza a flexão do joelho e, portanto, recruta os isquiotibiais em uma função diferente daquela exigida na dobradiça de quadril. Isso amplia o estímulo funcional do posterior de coxa sem depender apenas de variações de stiff/terra.',
+ hipExt:'Concentra a produção de força na extensão do quadril, aumentando a participação do glúteo máximo com menor interferência de outras articulações. É útil após movimentos compostos para aumentar o volume específico de glúteos.',
+ gluteIso:'Direciona o trabalho ao glúteo com menor complexidade coordenativa e carga axial. Entra como complemento após padrões compostos para aumentar o estímulo local sem competir com a técnica dos movimentos principais.',
+ abduction:'Explora a função de abdução do quadril, envolvendo principalmente glúteo médio e musculatura estabilizadora lateral. Acrescenta um vetor diferente ao treino e ajuda a evitar que todo o trabalho de glúteos fique restrito à extensão do quadril.',
+ pullV:'É uma puxada no plano vertical, com participação relevante de latíssimo do dorso, flexores do cotovelo e estabilizadores escapulares. Complementa remadas horizontais ao variar o vetor de força e a mecânica escapuloumeral.',
+ pullH:'É uma puxada horizontal que enfatiza retração escapular e musculatura média das costas. Em conjunto com puxadas verticais, amplia os vetores de estímulo e evita concentrar todo o treino de costas em um único padrão.',
+ push:'É um padrão de empurrar, envolvendo peitoral, tríceps e deltoide anterior em proporções dependentes da variação. Equilibra biomecanicamente os padrões de puxada e ajuda a distribuir o volume entre cadeias anteriores e posteriores do tronco.',
+ shoulder:'Representa empurrar vertical, com forte participação de deltoides e tríceps e exigência de estabilização escapular. Acrescenta um vetor diferente ao empurrar horizontal e amplia a cobertura funcional do treino de membros superiores.',
+ shoulderAcc:'É trabalho acessório de ombros, geralmente com menor carga externa e maior especificidade angular. Serve para complementar o volume sem substituir os movimentos compostos de empurrar.',
+ biceps:'É um trabalho analítico dos flexores do cotovelo, usado após puxadas compostas para acrescentar volume específico a uma musculatura já recrutada indiretamente.',
+ triceps:'É um trabalho analítico dos extensores do cotovelo, normalmente posicionado após empurradas compostas para aumentar o volume específico sem exigir novo padrão global.',
+ core:'Desafia a capacidade do tronco de produzir ou resistir a movimento. Sua inclusão melhora a distribuição do treino ao acrescentar controle lombo-pélvico sem competir diretamente com os principais padrões de força de membros superiores.',
+ metabolic:'Eleva a densidade do treino e a demanda cardiorrespiratória por meio de movimentos globais ou cíclicos. É colocado após a maior parte do trabalho de força para evitar que a fadiga metabólica prejudique precocemente a qualidade técnica.',
+ cardio:'Aumenta a demanda cardiorrespiratória com menor foco em tensão mecânica localizada. Funciona como aquecimento ou fechamento conforme a posição no bloco e permite modular intensidade sem alterar o núcleo de força.',
+ locomotion:'Adiciona deslocamento, coordenação e transições corporais, aumentando variabilidade motora e demanda energética sem depender de um único grupo muscular.'
+})[r]||'Cumpre uma função mecânica específica dentro do bloco, escolhida para aumentar complementaridade e reduzir redundância entre os exercícios.'}
+function technicalFit(i){const x=state.exercises[i], prev=state.exercises[i-1], next=state.exercises[i+1];let parts=[];
+ if(prev)parts.push(`Em relação ao exercício anterior (${prev.name}), muda ou complementa o padrão de movimento, reduzindo redundância mecânica.`);
+ if(next)parts.push(`Também prepara uma transição coerente para ${next.name}, preservando a progressão do bloco sem acumular exercícios de função idêntica.`);
+ if(x.role==='kneeFlex'&&state.exercises.some(e=>e.role==='hinge'))parts.push('No conjunto com uma dobradiça de quadril, os isquiotibiais são solicitados tanto como extensores do quadril quanto como flexores do joelho, ampliando o estímulo funcional do grupo muscular.');
+ if(x.role==='extension'&&state.exercises.some(e=>e.role==='knee'))parts.push('Após um agachamento ou outro composto dominante de joelho, aumenta o volume específico do quadríceps com menor demanda de estabilização e menor complexidade técnica.');
+ if(x.role==='pullH'&&state.exercises.some(e=>e.role==='pullV'))parts.push('A combinação de puxada vertical e horizontal distribui a demanda entre diferentes vetores de adução/extensão do ombro e retração escapular.');
+ if(x.role==='push'&&state.exercises.some(e=>['pullH','pullV'].includes(e.role)))parts.push('O equilíbrio entre empurrar e puxar reduz concentração excessiva do volume em uma única cadeia e melhora a organização do treino de superiores.');
+ if(x.role==='hipExt'&&state.exercises.some(e=>e.role==='hinge'))parts.push('Depois da dobradiça, mantém o foco nos extensores do quadril, porém com maior especificidade para glúteos e menor dependência dos isquiotibiais.');
+ return parts.join(' ')}
+function deepReason(x,i){return `<b>Racional biomecânico:</b> ${technicalRoleReason(x.role)}<br><br><b>Por que foi escolhido aqui:</b> ${x.why}<br><br><b>Integração com o bloco:</b> ${technicalFit(i)||pairReason(i)}<br><br><b>Função principal:</b> ${roleLabel(x.role)}.`}
+function render(day,duration,intensity){document.querySelector('#result').classList.remove('hidden');document.querySelector('#focusBadge').textContent=plans[day].focus;document.querySelector('#title').textContent=`Treino — ${plans[day].focus}`;let out='';blockGroups(day,state.exercises).forEach(([name,arr])=>{out+=`<div class="block"><h3>${name}</h3>`;arr.forEach((x)=>{let idx=state.exercises.indexOf(x);out+=`<div class="exercise"><div class="exhead"><div class="exname">${x.name}</div><div class="presc">${x.presc}</div></div><div class="small-actions"><button class="soft" onclick="toggleReason(${idx})">Por quê?</button><button class="ghost" onclick="swap(${idx})">Trocar</button><button class="danger" onclick="removeEx(${idx})">Excluir</button><button class="ghost" onclick="avoidEx(${idx})">Evitar</button></div><div class="reason" id="reason${idx}">${deepReason(x,idx)}</div></div>`});out+='</div>'});document.querySelector('#blocks').innerHTML=out;let obs=document.querySelector('#note').value.trim();document.querySelector('#whyall').innerHTML='<b>Por que esta combinação?</b><br>'+overall(day,state.exercises)+(obs?'<br><br><b>Observação considerada:</b> '+escapeHtml(obs):'');document.querySelector('#audit').innerHTML='<b>Auditoria automática</b><br>'+qualityAudit(day,state.exercises,obs)+( /dor|les[aã]o|cirurgia/i.test(obs)?'<br><span style="color:#8b5a00">Observações de dor/lesão exigem decisão profissional; a ferramenta apenas reduz prioridade de movimentos relacionados.</span>':'');}
+function escapeHtml(v){return v.replace(/[&<>'\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[c]));}
+function roleLabel(r){return({knee:'movimento dominante de joelho',extension:'extensão de joelho',unilateral:'trabalho unilateral',finish:'finalização/isometria',hinge:'dobradiça de quadril',kneeFlex:'flexão de joelho',hipExt:'extensão de quadril',gluteIso:'glúteo específico',abduction:'abdução',pullV:'puxada vertical',pullH:'puxada horizontal',push:'empurrar',shoulder:'ombros/empurrar vertical',shoulderAcc:'acessório de ombros',biceps:'bíceps',triceps:'tríceps',core:'core',metabolic:'metabólico',cardio:'cardio',locomotion:'locomoção/coordenação'})[r]||r}
+function overall(day,exs){if(day==='mon')return 'A sequência alterna movimentos compostos, extensão de joelho, trabalho unilateral e finalização, seguindo o padrão recorrente dos treinos históricos de quadríceps.';if(day==='wed')return 'A sessão combina dobradiça de quadril, flexão do joelho, extensão do quadril e trabalho específico/unilateral de glúteos, reproduzindo a diversidade mecânica presente nos treinos históricos.';if(day==='tue'||day==='thu')return 'A sessão preserva o padrão histórico de blocos: ativação/condicionamento, força de superiores, abdômen e fechamento metabólico; terça e quinta usam prioridades diferentes para reduzir repetição.';return 'O funcional mistura locomoção, força global, core e condicionamento em blocos curtos, seguindo o formato recorrente do material histórico.'}
+function pairReason(i){const x=state.exercises[i];if(x.role==='kneeFlex'&&state.exercises.some(e=>e.role==='hinge'))return 'Complementa a dobradiça de quadril com flexão de joelho para posteriores.';if(x.role==='extension'&&state.exercises.some(e=>e.role==='knee'))return 'Complementa o movimento composto com estímulo mais localizado de quadríceps.';if(x.role==='unilateral')return 'Acrescenta trabalho unilateral e varia a demanda em relação aos movimentos bilaterais.';if(x.role==='core')return 'Acrescenta trabalho de tronco sem duplicar a função principal dos exercícios de força.';if(['metabolic','cardio'].includes(x.role))return 'Eleva a demanda cardiovascular sem substituir o bloco principal de força.';if(x.role==='pullH'&&state.exercises.some(e=>e.role==='pullV'))return 'Equilibra puxada vertical e horizontal.';if(x.role==='push'&&state.exercises.some(e=>['pullH','pullV'].includes(e.role)))return 'Equilibra padrões de puxar e empurrar.';if(x.role==='hipExt'&&state.exercises.some(e=>e.role==='hinge'))return 'Mantém foco em glúteos, mas com execução mais específica do que a dobradiça.';return 'Cumpre uma função diferente das escolhas próximas e ajuda a preservar variedade mecânica.'}
+window.avoidEx=i=>{const name=state.exercises[i].name;let a=JSON.parse(storageGet('tp_avoid')||'[]');if(!a.includes(name))a.push(name);storageSet('tp_avoid',JSON.stringify(a.slice(-40)));toast(name+' será evitado nas próximas opções');swap(i)};
+
+window.toggleReason=i=>document.querySelector('#reason'+i).classList.toggle('show');
+window.swap=i=>{let old=state.exercises[i],day=document.querySelector('#day').value,note=document.querySelector('#note').value,arr=candidates(day,old.role,note).filter(x=>!state.exercises.some(c=>c.name===x.name));if(!arr.length)return toast('Sem outra opção compatível para esta função');let intensity=document.querySelector('#intensity').value;state.exercises[i]={...arr[0],role:old.role,presc:prescription(arr[0],intensity)};render(day,document.querySelector('#duration').value,intensity)};
+window.removeEx=i=>{state.exercises.splice(i,1);render(document.querySelector('#day').value,document.querySelector('#duration').value,document.querySelector('#intensity').value)};
+function whatsapp(){return state.exercises.map(x=>x.name).join('\n')}
+function toast(t){let e=document.querySelector('#toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1500)}
+function generateSelected(){
+ const p=period.value;
+ if(p==='daily')make(day.value,duration.value,intensity.value,note.value);
+ else buildPlan(p,duration.value,intensity.value,note.value);
+}
+function syncPeriodUI(){
+ const p=period.value; document.querySelector('#dayField').style.opacity=p==='daily'?'1':'.45'; day.disabled=p!=='daily';
+ document.querySelector('#generate').textContent=p==='daily'?'Gerar diário':p==='weekly'?'Gerar semanal':'Gerar mensal';
+ document.querySelector('#alternate').textContent=p==='daily'?'Gerar outra opção':p==='weekly'?'Gerar outra semana':'Gerar outro mês';
+}
+document.querySelector('#period').onchange=syncPeriodUI;
+document.querySelector('#generate').onclick=generateSelected;
+document.querySelector('#alternate').onclick=generateSelected;
+document.querySelector('#clearRecent').onclick=()=>{storageRemove('tp_recent');toast('Histórico recente limpo')};
+document.querySelector('#copy').onclick=async()=>{await copyTextMobile(whatsapp(),'Nomes dos exercícios copiados')};
+document.querySelector('#like').onclick=()=>{let a=JSON.parse(storageGet('tp_favorites')||'[]');a=[...new Set([...a,...state.exercises.map(x=>x.name)])].slice(-60);storageSet('tp_favorites',JSON.stringify(a));toast('Preferências deste treino salvas neste navegador')};
+function validationData(){return JSON.parse(storageGet('tp_validations')||'[]')}
+function updateValidationCount(){const a=validationData();document.querySelector('#validationCount').textContent=a.length?`${a.length} treino(s) avaliados neste navegador.`:'Nenhum treino avaliado ainda.'}
+function registerValidation(status){const day=document.querySelector('#day').value,duration=document.querySelector('#duration').value,intensity=document.querySelector('#intensity').value;let a=validationData();a.push({status,day,focus:plans[day].focus,duration,intensity,note:document.querySelector('#note').value.trim(),exercises:state.exercises.map(x=>({name:x.name,presc:x.presc,role:x.role})),createdAt:new Date().toISOString()});storageSet('tp_validations',JSON.stringify(a.slice(-100)));updateValidationCount();toast(status==='aprovado'?'Treino marcado como “Faria assim”':status==='ajustar'?'Treino marcado como “Alteraria”':'Treino marcado como “Não faria”')}
+function validationSummary(){const a=validationData();if(!a.length)return 'Nenhum treino foi avaliado ainda.';const counts={aprovado:0,ajustar:0,rejeitado:0};a.forEach(x=>counts[x.status]=(counts[x.status]||0)+1);let txt=`VALIDAÇÃO — TREINAMENTO PERSONALIZADO
+
+Total: ${a.length}
+✅ Faria assim: ${counts.aprovado||0}
+⚠️ Alteraria: ${counts.ajustar||0}
+❌ Não faria: ${counts.rejeitado||0}
+
+ÚLTIMAS AVALIAÇÕES
+`;a.slice(-10).forEach((x,i)=>{txt+=`
+${i+1}. ${x.focus} · ${x.duration} min · ${x.intensity} · ${x.status.toUpperCase()}
+${x.exercises.map(e=>'• '+e.name+' — '+e.presc).join('\n')}
+`});return txt.trim()}
+document.querySelector('#approve').onclick=()=>registerValidation('aprovado');
+document.querySelector('#adjust').onclick=()=>registerValidation('ajustar');
+document.querySelector('#reject').onclick=()=>registerValidation('rejeitado');
+document.querySelector('#copyValidation').onclick=async()=>{const t=validationSummary();await copyTextMobile(t,'Resumo da validação copiado')};
+updateValidationCount();
+syncPeriodUI();
+make('mon','45','normal','');
+</script></body></html>
