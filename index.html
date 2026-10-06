@@ -349,13 +349,73 @@ function facM(){if(ph!=='roll'){modal('<p>Conclua a jogada atual (CONTINUAR) ant
 modal(`<h3 class="cz" style="color:var(--g)">MODO FACILITADOR — CORRIGIR POSIÇÃO</h3><label>Jogador</label><select id="fp">${G.pl.map((p,i)=>`<option value="${i}">${p.name} — ${ARQ[p.arch]} (casa ${p.pos})</option>`).join('')}</select><label>Nova casa</label><select id="fc">${Array.from({length:72},(_, i)=>`<option value="${i+1}">${i+1} — ${CASAS[i+1][0]}</option>`).join('')}</select><small>A correção não ativa espadas nem serpentes.</small><div class="row2"><button onclick="closeM()">CANCELAR</button><button onclick="fixP()">APLICAR</button></div>`)}
 function fixP(){const i=+$('fp').value,c=+$('fc').value,p=G.pl[i];snap();G.h.push({man:1,pi:i,from:p.pos,to:c});p.pos=c;setP(i,cell(c));closeM();renderAll()}
 function endM(){if(ph==='busy')return;ask('Deseja realmente encerrar esta jornada?','ENCERRAR JORNADA',summary)}
-function summary(){const vis=[...new Set(G.h.filter(e=>!e.man).flatMap(e=>[e.to,e.dest].filter(Boolean)))].sort((a,b)=>a-b),mv=G.h.filter(e=>!e.man);
-$('sumc').innerHTML=`<h1 class="ttl" style="font-size:40px">MAHA LILAH</h1><p class="sub">O JOGO DA VIDA</p><p><b>Data:</b> ${G.date}<br><b>Ponto de trabalho:</b> ${G.work}<br><b>Turnos:</b> ${mv.length} · <b>Espadas:</b> ${mv.filter(e=>e.kind==='Espada'&&e.sp).length} · <b>Serpentes:</b> ${mv.filter(e=>e.kind==='Serpente'&&e.sp).length}</p>
-<h3>PARTICIPANTES</h3><table><tr><th>Ordem</th><th>Nome</th><th>Arquétipo</th><th>Casa inicial</th><th>Casa final</th><th>Dados</th></tr>${G.pl.map((p,i)=>`<tr><td>${i+1}</td><td>${p.name}</td><td>${ARQ[p.arch]}</td><td>${p.start}</td><td>${p.pos}</td><td>${mv.filter(e=>e.pi===i).map(e=>e.d).join(', ')||'—'}</td></tr>`).join('')}</table>
-<h3>HISTÓRICO COMPLETO</h3>${G.h.map(hline).join('')||'<small>Sem jogadas.</small>'}
-<h3>CASAS VISITADAS</h3><p>${vis.map(n=>`${n} — ${CASAS[n][0]}`).join('; ')||'—'}</p>
-<div class="nop" style="display:flex;gap:10px;justify-content:center;margin-top:24px"><button class="big" onclick="window.print()">EXPORTAR PDF</button><button class="big" onclick="ask('Isso apagará os dados da jornada atual. Deseja iniciar uma nova jornada?','NOVA JORNADA',newJ)">NOVA JORNADA</button></div>`;
-$('game').classList.remove('on');$('sum').classList.add('on')}
+function journeyReportData(){
+ const mv=G.h.filter(e=>!e.man),vis=[],seen=new Set();
+ mv.forEach(e=>{[e.to,e.sp?e.dest:null].filter(Boolean).forEach(n=>{if(!seen.has(n)){seen.add(n);vis.push(n)}})});
+ return{mv,vis,esp:mv.filter(e=>e.kind==='Espada'&&e.sp).length,ser:mv.filter(e=>e.kind==='Serpente'&&e.sp).length};
+}
+function exportJourneyPDF(){
+ if(!G)return;
+ const {mv,vis,esp,ser}=journeyReportData(),eh=x=>escapeHtml(String(x??'')),base=new URL('.',location.href).href;
+ const w=window.open('','_blank');
+ if(!w){modal('<p>O navegador bloqueou a janela do relatório. Libere pop-ups para esta página e tente novamente.</p><div class="row2"><button onclick="closeM()">OK</button></div>');return}
+ const playerRows=G.pl.map((p,i)=>{
+  const ev=mv.filter(e=>e.pi===i),dice=ev.map(e=>e.d).join(', ')||'—';
+  const route=ev.map(e=>e.sp?`${e.to} → ${e.dest} (${e.kind})`:String(e.to)).join(' · ')||'—';
+  return `<tr><td>${i+1}</td><td>${eh(p.name)}</td><td>${eh(ARQ[p.arch])}</td><td>${p.start}</td><td>${p.pos}</td><td>${eh(dice)}</td><td>${eh(route)}</td></tr>`;
+ }).join('');
+ const historyRows=G.h.map(e=>{
+  if(e.man)return `<tr><td>—</td><td>${eh(G.pl[e.pi]?.name||'')}</td><td>—</td><td>${e.from} → ${e.to}</td><td>Correção manual</td></tr>`;
+  const event=e.sp?`${e.kind}: ${e.to} → ${e.dest}`:(e.kind?`${e.kind} em ${e.to} (não executada)`:'—');
+  return `<tr><td>${e.tn}</td><td>${eh(G.pl[e.pi]?.name||'')}</td><td>${e.d}</td><td>${eh((e.path||[]).join(' → '))}</td><td>${eh(event)}</td></tr>`;
+ }).join('')||'<tr><td colspan="5">Sem jogadas registradas.</td></tr>';
+ const housePages=vis.map((n,idx)=>{
+  const c=CASAS[n],img=window.MAHA_CARDS?.[n]||'',special=SW[n]?`Espada: ${n} → ${SW[n]}`:SN[n]?`Serpente: ${n} → ${SN[n]}`:'';
+  return `<section class="house-page${idx===0?' first':''}">
+   <div class="house-head"><div><div class="house-no">CASA ${n}</div><h2>${eh(c[0])}</h2>${special?`<div class="special">${eh(special)}</div>`:''}</div></div>
+   <div class="house-grid">${img?`<div class="card-img"><img src="${eh(img)}" alt="Carta da casa ${n}"></div>`:''}
+   <div class="house-copy"><h3>Resumo</h3><p class="resume">${eh(RESUMOS[n]||'')}</p><h3>Descrição completa</h3>${c[1].map(p=>`<p>${eh(p)}</p>`).join('')}</div></div>
+  </section>`;
+ }).join('');
+ const doc=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><base href="${eh(base)}"><title>Maha Lilah — Jornada ${eh(G.date)}</title>
+ <style>
+ @page{size:A4;margin:14mm 13mm 16mm}
+ *{box-sizing:border-box}body{font-family:Georgia,'Times New Roman',serif;color:#222;margin:0;background:#fff;line-height:1.45;font-size:10.5pt}
+ h1,h2,h3{font-family:Georgia,'Times New Roman',serif}h1{font-size:30pt;letter-spacing:.16em;margin:0;color:#7b5b19}h2{font-size:18pt;color:#5c4313;margin:5px 0 8px}h3{font-size:11.5pt;color:#755719;margin:14px 0 5px;text-transform:uppercase;letter-spacing:.05em}
+ .toolbar{position:sticky;top:0;z-index:5;padding:10px;background:#0b241a;text-align:center}.toolbar button{font:600 14px Arial;padding:10px 18px;border:1px solid #d2b45d;background:#17382a;color:#f2d889;border-radius:7px;cursor:pointer}
+ .cover{min-height:245mm;display:flex;flex-direction:column;justify-content:center;text-align:center;page-break-after:always}.cover .sub{letter-spacing:.35em;font-size:14pt;color:#80652b}.cover .report{margin-top:28px;font-size:17pt}.meta{margin:32px auto 0;max-width:155mm;text-align:left;border-top:1px solid #cbb57c;border-bottom:1px solid #cbb57c;padding:14px 0}.meta p{margin:5px 0}
+ .section{page-break-before:always}.section:first-of-type{page-break-before:auto}table{width:100%;border-collapse:collapse;margin:8px 0 18px;font-size:9pt}th,td{border:1px solid #c9c0aa;padding:6px;vertical-align:top}th{background:#eee8d8;text-align:left;color:#4d3a13}
+ .house-list{columns:2;column-gap:18px}.house-list div{break-inside:avoid;padding:3px 0}
+ .house-page{page-break-before:always}.house-page.first{page-break-before:always}.house-head{border-bottom:2px solid #b49345;padding-bottom:6px;margin-bottom:12px}.house-no{font-size:10pt;letter-spacing:.18em;color:#8a6b24;font-weight:bold}.special{display:inline-block;margin-top:3px;padding:3px 7px;border:1px solid #bfa45d;border-radius:12px;font-size:8.8pt;color:#70551d}
+ .house-grid{display:grid;grid-template-columns:54mm 1fr;gap:10mm;align-items:start}.card-img img{width:100%;height:auto;display:block;border:1px solid #cbb57c}.house-copy p{margin:0 0 8px;text-align:justify}.resume{font-style:italic;background:#f5f1e6;padding:8px;border-left:3px solid #b49345}
+ .note{font-size:8.5pt;color:#666}.footer-note{margin-top:18px;padding-top:8px;border-top:1px solid #ddd;font-size:8pt;color:#777}
+ @media(max-width:700px){.house-grid{grid-template-columns:1fr}.card-img img{width:min(72vw,260px);margin:auto}.house-list{columns:1}}
+ @media print{.no-print,.toolbar{display:none!important}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.house-page{break-before:page}.section{break-before:page}}
+ </style></head><body>
+ <div class="toolbar no-print"><button onclick="window.print()">IMPRIMIR / SALVAR COMO PDF</button></div>
+ <section class="cover"><h1>MAHA LILAH</h1><div class="sub">O JOGO DA VIDA</div><div class="report">RELATÓRIO DA JORNADA</div>
+ <div class="meta"><p><b>Data:</b> ${eh(G.date)}</p><p><b>Ponto de trabalho:</b> ${eh(G.work||'—')}</p><p><b>Participantes:</b> ${G.pl.length}</p><p><b>Turnos:</b> ${mv.length} &nbsp; · &nbsp; <b>Espadas:</b> ${esp} &nbsp; · &nbsp; <b>Serpentes:</b> ${ser}</p><p><b>Casas diferentes visitadas:</b> ${vis.length}</p></div>
+ <p class="note">Relatório gerado ao encerramento da jornada.</p></section>
+ <section class="section"><h2>Participantes e percurso</h2><table><thead><tr><th>#</th><th>Nome</th><th>Arquétipo</th><th>Início</th><th>Final</th><th>Dados</th><th>Casas / eventos</th></tr></thead><tbody>${playerRows}</tbody></table>
+ <h2>Casas visitadas</h2><div class="house-list">${vis.map(n=>`<div><b>${n}</b> — ${eh(CASAS[n][0])}</div>`).join('')||'<div>—</div>'}</div></section>
+ <section class="section"><h2>Histórico cronológico</h2><table><thead><tr><th>Turno</th><th>Participante</th><th>Dado</th><th>Movimento</th><th>Evento</th></tr></thead><tbody>${historyRows}</tbody></table></section>
+ ${housePages}
+ <div class="footer-note">Os textos das casas reproduzem a base de conteúdo auditada utilizada pelo jogo.</div>
+ </body></html>`;
+ w.document.open();w.document.write(doc);w.document.close();
+ const imgs=[...w.document.images],ready=imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=r;img.onerror=r}));
+ Promise.all(ready).then(()=>setTimeout(()=>{w.focus();try{w.print()}catch(_){}},450));
+}
+function summary(){
+ const {mv,vis,esp,ser}=journeyReportData();
+ $('sumc').innerHTML=`<h1 class="ttl" style="font-size:40px">MAHA LILAH</h1><p class="sub">O JOGO DA VIDA</p><p><b>Data:</b> ${escapeHtml(String(G.date))}<br><b>Ponto de trabalho:</b> ${escapeHtml(String(G.work||'—'))}<br><b>Turnos:</b> ${mv.length} · <b>Espadas:</b> ${esp} · <b>Serpentes:</b> ${ser}</p>
+ <h3>PARTICIPANTES</h3><table><tr><th>Ordem</th><th>Nome</th><th>Arquétipo</th><th>Casa inicial</th><th>Casa final</th><th>Dados</th></tr>${G.pl.map((p,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(String(p.name))}</td><td>${escapeHtml(String(ARQ[p.arch]))}</td><td>${p.start}</td><td>${p.pos}</td><td>${mv.filter(e=>e.pi===i).map(e=>e.d).join(', ')||'—'}</td></tr>`).join('')}</table>
+ <h3>HISTÓRICO COMPLETO</h3>${G.h.map(hline).join('')||'<small>Sem jogadas.</small>'}
+ <h3>CASAS VISITADAS</h3><p>${vis.map(n=>`${n} — ${escapeHtml(String(CASAS[n][0]))}`).join('; ')||'—'}</p>
+ <p style="margin-top:18px"><small>O PDF completo inclui capa, participantes, percurso, histórico, imagens das cartas, resumos e descrições completas das casas visitadas.</small></p>
+ <div class="nop" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px"><button class="big" onclick="exportJourneyPDF()">GERAR PDF COMPLETO</button><button class="big" onclick="ask('Isso apagará os dados da jornada atual. Deseja iniciar uma nova jornada?','NOVA JORNADA',newJ)">NOVA JORNADA</button></div>`;
+ $('game').classList.remove('on');$('sum').classList.add('on')
+}
 function newJ(){G=null;U=[];cnt=1;NM=[''];ch={};$('work').value='';$('cn').textContent=1;names();$('sum').classList.remove('on');$('s1').classList.add('on')}
 names();
 </script><script>window.MAHA_FIREBASE_CONFIG={
