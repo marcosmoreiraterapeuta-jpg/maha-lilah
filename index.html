@@ -305,7 +305,7 @@ function gridR(){renderArchetypeMode();$('who').textContent=`${NM[st].toUpperCas
 $('grid').innerHTML=ARQ.map((a,i)=>`<button aria-disabled="${archetypeMode==='draw'}" aria-pressed="${sel===i}" class="arq${sel===i?' sel':''}" ${i in ch?'disabled':''} onclick="selectArchetype(${i})"><img src="${IMG.h[i]}" alt="${a}"><span>${i+1} · ${a}</span><i>${i in ch?NM[ch[i]]:''}</i></button>`).join('');$('cf').disabled=archetypeSpinning||sel<0;renderArqExplanation()}
 function conf(){if(archetypeSpinning||sel<0||sel in ch)return;ch[sel]=st;sel=-1;archetypeDraw=null;st++;if(st<cnt)gridR();else start()}
 function start(){const pl=[];Object.keys(ch).forEach(a=>pl[ch[a]]={name:NM[ch[a]],work:PT[ch[a]],arch:+a,pos:6,start:6});
-G={work:cnt===1?PT[0]:'',date:new Date().toLocaleString('pt-BR'),pl,t:0,turnNo:0,h:[],cur:null,die:0};U=[];ph='roll';
+G={work:cnt===1?PT[0]:'',date:new Date().toLocaleString('pt-BR'),pl,t:0,turnNo:0,h:[],cur:null,die:0,repeat6:false};U=[];ph='roll';
 $('s2').classList.remove('on');$('game').classList.add('on');drawBoard();panelEmpty();renderAll()}
 /* ---------- tabuleiro ---------- */
 const PAL=[['#7a4a1a','#d9a45a'],['#6a1515','#e8d27a'],['#2f4a1f','#9cc070'],['#4a3a1a','#c9a060'],['#5a1a1a','#d08a6a'],['#1f4a3a','#7ac0a0'],['#3a3a5a','#a0a8d0'],['#5a4a1a','#e0c870'],['#4a2a1a','#c08a5a'],['#283a4a','#88a8c0']];
@@ -321,15 +321,32 @@ function tween(i,pts,dur){$('pw').appendChild(PW[i]);return new Promise(res=>{co
 function rnd(){let v;do{v=crypto.getRandomValues(new Uint8Array(1))[0]}while(v>=252);return v%6+1}
 const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 function face(n){$('die').innerHTML=Array.from({length:9},(_, i)=>`<i class="${n&&PIPS[n].includes(i)?'on':''}"></i>`).join('')}
-function snap(){U.push(JSON.stringify({pos:G.pl.map(p=>p.pos),t:G.t,tn:G.turnNo,h:G.h,die:G.die}))}
-function undo(){if(ph==='busy'||!U.length)return;const s=JSON.parse(U.pop());G.pl.forEach((p,i)=>{p.pos=s.pos[i];setP(i,cell(p.pos))});G.t=s.t;G.turnNo=s.tn;G.h=s.h;G.die=s.die;G.cur=null;ph='roll';panelEmpty();renderAll()}
-async function doRoll(){if(ph!=='roll')return;au();ph='busy';snap();renderAll();const d=rnd(),pi=G.t,p=G.pl[pi];$('die').classList.add('r');FX.dado();
-for(let i=0;i<10;i++){face(rnd());await sleep(100)}$('die').classList.remove('r');face(d);FX.res();G.die=d;G.turnNo++;await sleep(500);
-const path=[p.pos];let q=p.pos,dir=1;for(let i=0;i<d;i++){if(q===72)dir=-1;q+=dir;path.push(q)}
+function snap(){U.push(JSON.stringify({pos:G.pl.map(p=>p.pos),t:G.t,tn:G.turnNo,h:G.h,die:G.die,repeat6:!!G.repeat6}))}
+function undo(){if(ph==='busy'||!U.length)return;const s=JSON.parse(U.pop());G.pl.forEach((p,i)=>{p.pos=s.pos[i];setP(i,cell(p.pos))});G.t=s.t;G.turnNo=s.tn;G.h=s.h;G.die=s.die;G.repeat6=!!s.repeat6;G.cur=null;ph='roll';panelEmpty();renderAll()}
+function movePath(start,d){
+ const path=[start];let q=start,dir=1;
+ for(let i=0;i<d;i++){
+  if(q<70)q++;
+  else{
+   if(q===72)dir=-1;
+   else if(q===70&&dir===-1)dir=1;
+   q+=dir;
+  }
+  path.push(q);
+ }
+ return path;
+}
+async function doRoll(){if(ph!=='roll')return;au();const continuing=!!G.repeat6;ph='busy';snap();G.repeat6=false;renderAll();const d=rnd(),pi=G.t,p=G.pl[pi];$('die').classList.add('r');FX.dado();
+for(let i=0;i<10;i++){face(rnd());await sleep(100)}$('die').classList.remove('r');face(d);FX.res();G.die=d;if(!continuing)G.turnNo++;await sleep(500);
+const path=movePath(p.pos,d),q=path[path.length-1];
 for(let i=1;i<path.length;i++){FX.passo();await tween(pi,[cell(path[i-1]),cell(path[i])],380);p.pos=path[i];renderPl()}
-const e={tn:G.turnNo,pi,d,path,to:q};G.h.push(e);G.cur=e;showH(q);hl([q]);FX.cheg();
+const e={tn:G.turnNo,pi,d,path,to:q,bonus:continuing,again:d===6};G.h.push(e);G.cur=e;showH(q);hl([q]);FX.cheg();
 if(SW[q]){e.kind='Espada';e.dest=SW[q];FX.esp1();ph='sp'}else if(SN[q]){e.kind='Serpente';e.dest=SN[q];FX.ser1();ph='sp'}else ph='rd';renderAll();showH(q)}
-async function cont(){au();const e=G.cur;$('pT').classList.remove('on');if(ph==='rd'){hl([]);G.t=(G.t+1)%G.pl.length;G.cur=null;ph='roll';panelEmpty();renderAll();return}
+async function cont(){au();const e=G.cur;$('pT').classList.remove('on');if(ph==='rd'){
+ hl([]);
+ if(e?.again){G.repeat6=true;G.cur=null;ph='roll';panelEmpty();renderAll();return}
+ G.repeat6=false;G.t=(G.t+1)%G.pl.length;G.cur=null;ph='roll';panelEmpty();renderAll();return
+}
 if(ph==='sp'){ph='busy';renderAll();const sw=e.kind==='Espada';hl([e.to,e.dest]);if(sw)FX.esp2();else FX.ser2();
 await sleep(600);await tween(e.pi,sw?[cell(e.to),cell(e.dest)]:snk(e.to,e.dest),sw?1800:2600);G.pl[e.pi].pos=e.dest;hl([e.dest]);FX.cheg();e.sp=true;ph='rd';showH(e.dest);renderAll()}}
 /* ---------- interface ---------- */
@@ -343,10 +360,10 @@ function closeHouseDetail(){const e=$('house-detail');if(!e)return;e.hidden=true
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHouseDetail()});
 function panelEmpty(){$('panel').innerHTML='<div class="emp cz">Lance o dado para iniciar.<br><br><small>Todos começam na casa 6.</small></div>'}
 function renderPl(){$('pls').innerHTML=G.pl.map((p,i)=>`<div class="pl${i===G.t?' act':''}"><img src="${IMG.h[p.arch]}"><div><b>${p.name}</b><small>${ARQ[p.arch]}</small><small>Casa ${p.pos}</small><small title="${p.work||''}"><b>Ponto:</b> ${p.work||'—'}</small></div></div>`).join('');PW.forEach((g,i)=>g.classList.toggle('act',i===G.t))}
-function hline(e){if(e.man)return`<div class="he"><b>${G.pl[e.pi].name}</b> — correção manual: ${e.from} → ${e.to}</div>`;const p=G.pl[e.pi];return`<div class="he"><b>${p.name}</b> — ${ARQ[p.arch]} · turno ${e.tn}<br>Dado: ${e.d}<br>${e.path.join(' → ')}${e.sp?`<br><em>${e.kind}: ${e.to} → ${e.dest}</em>`:e.kind?`<br><em>${e.kind} em ${e.to} (pendente)</em>`:''}</div>`}
+function hline(e){if(e.man)return`<div class="he"><b>${G.pl[e.pi].name}</b> — correção manual: ${e.from} → ${e.to}</div>`;const p=G.pl[e.pi],extra=e.bonus?' · complemento do 6':'';return`<div class="he"><b>${p.name}</b> — ${ARQ[p.arch]} · turno ${e.tn}${extra}<br>Dado: ${e.d}<br>${e.path.join(' → ')}${e.sp?`<br><em>${e.kind}: ${e.to} → ${e.dest}</em>`:e.kind?`<br><em>${e.kind} em ${e.to} (pendente)</em>`:''}${e.again?'<br><em>🎲 Saiu 6: joga novamente após concluir esta etapa.</em>':''}</div>`}
 function renderAll(){renderPl();face(G.die);let b,v='VEZ DE: '+G.pl[G.t].name.toUpperCase();
 if(ph==='roll')b='<span style="opacity:.8">Clique no dado para lançar</span>';else if(ph==='busy')b='<span style="opacity:.8">…</span>';
-else{const c=G.pl[G.cur.pi].pos,k=G.cur.kind;if(ph==='sp')v+=` · ${k==='Espada'?'⚔ ESPADA':'🐍 SERPENTE'} ${G.cur.to} → ${G.cur.dest}`;b=`<button onclick="op('pT')">📖 LER CASA ${c}</button><button class="cta" onclick="cont()">${ph==='sp'?'EXECUTAR '+(k==='Espada'?'A ESPADA':'A SERPENTE'):'CONTINUAR'}</button>`}
+else{const c=G.pl[G.cur.pi].pos,k=G.cur.kind;if(ph==='sp')v+=` · ${k==='Espada'?'⚔ ESPADA':'🐍 SERPENTE'} ${G.cur.to} → ${G.cur.dest}`;const next=ph==='sp'?'EXECUTAR '+(k==='Espada'?'A ESPADA':'A SERPENTE'):(G.cur.again?'JOGAR NOVAMENTE — SAIU 6':'CONTINUAR');b=`<button onclick="op('pT')">📖 LER CASA ${c}</button><button class="cta" onclick="cont()">${next}</button>`}
 $('dk').innerHTML=`<div class="vz">${v}</div><div class="bt">${b}</div>`;$('undo').disabled=ph==='busy'||!U.length;
 $('hist').innerHTML='<h4>HISTÓRICO</h4>'+(G.h.length?G.h.map(hline).join(''):'<small>Nenhuma jogada ainda.</small>');$('hist').scrollTop=1e6}
 function modal(h){$('modc').innerHTML=h;$('mod').classList.add('on')}function closeM(){$('mod').classList.remove('on')}
@@ -358,11 +375,11 @@ function endM(){if(ph==='busy')return;ask('Deseja realmente encerrar esta jornad
 function journeyReportData(){
  const mv=G.h.filter(e=>!e.man),vis=[],seen=new Set();
  mv.forEach(e=>{[e.to,e.sp?e.dest:null].filter(Boolean).forEach(n=>{if(!seen.has(n)){seen.add(n);vis.push(n)}})});
- return{mv,vis,esp:mv.filter(e=>e.kind==='Espada'&&e.sp).length,ser:mv.filter(e=>e.kind==='Serpente'&&e.sp).length};
+ return{mv,vis,turns:new Set(mv.map(e=>e.tn)).size,rolls:mv.length,esp:mv.filter(e=>e.kind==='Espada'&&e.sp).length,ser:mv.filter(e=>e.kind==='Serpente'&&e.sp).length};
 }
 function exportJourneyPDF(){
  if(!G)return;
- const {mv,vis,esp,ser}=journeyReportData(),eh=x=>escapeHtml(String(x??'')),base=new URL('.',location.href).href;
+ const {mv,vis,turns,rolls,esp,ser}=journeyReportData(),eh=x=>escapeHtml(String(x??'')),base=new URL('.',location.href).href;
  const w=window.open('','_blank');
  if(!w){modal('<p>O navegador bloqueou a janela do relatório. Libere pop-ups para esta página e tente novamente.</p><div class="row2"><button onclick="closeM()">OK</button></div>');return}
  const playerRows=G.pl.map((p,i)=>{
@@ -374,9 +391,10 @@ function exportJourneyPDF(){
   const ev=mv.filter(e=>e.pi===i),seenP=new Set(),houses=[];
   ev.forEach(e=>{[e.to,e.sp?e.dest:null].filter(Boolean).forEach(n=>{if(!seenP.has(n)){seenP.add(n);houses.push(n)}})});
   const pEsp=ev.filter(e=>e.kind==='Espada'&&e.sp).length,pSer=ev.filter(e=>e.kind==='Serpente'&&e.sp).length;
+  const pTurns=new Set(ev.map(e=>e.tn)).size;
   return `<section class="player-page"><div class="house-head"><div class="house-no">PARTICIPANTE ${i+1}</div><h2>${eh(p.name)} — ${eh(ARQ[p.arch])}</h2></div>
   <div class="player-work"><b>Ponto de trabalho</b><p>${eh(p.work||'—')}</p></div>
-  <p><b>Casa inicial:</b> ${p.start} &nbsp; · &nbsp; <b>Casa final:</b> ${p.pos} &nbsp; · &nbsp; <b>Turnos:</b> ${ev.length} &nbsp; · &nbsp; <b>Espadas:</b> ${pEsp} &nbsp; · &nbsp; <b>Serpentes:</b> ${pSer}</p>
+  <p><b>Casa inicial:</b> ${p.start} &nbsp; · &nbsp; <b>Casa final:</b> ${p.pos} &nbsp; · &nbsp; <b>Turnos:</b> ${pTurns} &nbsp; · &nbsp; <b>Lançamentos:</b> ${ev.length} &nbsp; · &nbsp; <b>Espadas:</b> ${pEsp} &nbsp; · &nbsp; <b>Serpentes:</b> ${pSer}</p>
   <h3>Casas visitadas</h3><div class="house-list">${houses.map(n=>`<div><b>${n}</b> — ${eh(CASAS[n][0])}</div>`).join('')||'<div>—</div>'}</div></section>`;
  }).join('');
  const historyRows=G.h.map(e=>{
@@ -409,7 +427,7 @@ function exportJourneyPDF(){
  </style></head><body>
  <div class="toolbar no-print"><button onclick="window.print()">IMPRIMIR / SALVAR COMO PDF</button></div>
  <section class="cover"><h1>MAHA LILAH</h1><div class="sub">O JOGO DA VIDA</div><div class="report">RELATÓRIO DA JORNADA</div>
- <div class="meta"><p><b>Data:</b> ${eh(G.date)}</p>${G.work?`<p><b>Ponto geral da jornada:</b> ${G.work}</p>`:''}<p><b>Participantes:</b> ${G.pl.length}</p><p><b>Turnos:</b> ${mv.length} &nbsp; · &nbsp; <b>Espadas:</b> ${esp} &nbsp; · &nbsp; <b>Serpentes:</b> ${ser}</p><p><b>Casas diferentes visitadas:</b> ${vis.length}</p></div>
+ <div class="meta"><p><b>Data:</b> ${eh(G.date)}</p>${G.work?`<p><b>Ponto geral da jornada:</b> ${G.work}</p>`:''}<p><b>Participantes:</b> ${G.pl.length}</p><p><b>Turnos:</b> ${turns} &nbsp; · &nbsp; <b>Lançamentos:</b> ${rolls} &nbsp; · &nbsp; <b>Espadas:</b> ${esp} &nbsp; · &nbsp; <b>Serpentes:</b> ${ser}</p><p><b>Casas diferentes visitadas:</b> ${vis.length}</p></div>
  <p class="note">Relatório gerado ao encerramento da jornada.</p></section>
  <section class="section"><h2>Participantes e percurso</h2><table><thead><tr><th>#</th><th>Nome</th><th>Arquétipo</th><th>Ponto de trabalho</th><th>Início</th><th>Final</th><th>Dados</th><th>Casas / eventos</th></tr></thead><tbody>${playerRows}</tbody></table>
  <h2>Casas visitadas na jornada</h2><div class="house-list">${vis.map(n=>`<div><b>${n}</b> — ${eh(CASAS[n][0])}</div>`).join('')||'<div>—</div>'}</div></section>
@@ -423,8 +441,8 @@ function exportJourneyPDF(){
  Promise.all(ready).then(()=>setTimeout(()=>{w.focus();try{w.print()}catch(_){}},450));
 }
 function summary(){
- const {mv,vis,esp,ser}=journeyReportData();
- $('sumc').innerHTML=`<h1 class="ttl" style="font-size:40px">MAHA LILAH</h1><p class="sub">O JOGO DA VIDA</p><p><b>Data:</b> ${escapeHtml(String(G.date))}${G.work?`<br><b>Ponto geral da jornada:</b> ${G.work}`:''}<br><b>Turnos:</b> ${mv.length} · <b>Espadas:</b> ${esp} · <b>Serpentes:</b> ${ser}</p>
+ const {mv,vis,turns,rolls,esp,ser}=journeyReportData();
+ $('sumc').innerHTML=`<h1 class="ttl" style="font-size:40px">MAHA LILAH</h1><p class="sub">O JOGO DA VIDA</p><p><b>Data:</b> ${escapeHtml(String(G.date))}${G.work?`<br><b>Ponto geral da jornada:</b> ${G.work}`:''}<br><b>Turnos:</b> ${turns} · <b>Lançamentos:</b> ${rolls} · <b>Espadas:</b> ${esp} · <b>Serpentes:</b> ${ser}</p>
  <h3>PARTICIPANTES</h3><table><tr><th>Ordem</th><th>Nome</th><th>Arquétipo</th><th>Ponto de trabalho</th><th>Casa inicial</th><th>Casa final</th><th>Dados</th></tr>${G.pl.map((p,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(String(p.name))}</td><td>${escapeHtml(String(ARQ[p.arch]))}</td><td>${p.work||'—'}</td><td>${p.start}</td><td>${p.pos}</td><td>${mv.filter(e=>e.pi===i).map(e=>e.d).join(', ')||'—'}</td></tr>`).join('')}</table>
  <h3>HISTÓRICO COMPLETO</h3>${G.h.map(hline).join('')||'<small>Sem jogadas.</small>'}
  <h3>CASAS VISITADAS</h3><p>${vis.map(n=>`${n} — ${escapeHtml(String(CASAS[n][0]))}`).join('; ')||'—'}</p>
