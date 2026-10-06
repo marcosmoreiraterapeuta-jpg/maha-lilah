@@ -362,7 +362,16 @@ function exportJourneyPDF(){
  const playerRows=G.pl.map((p,i)=>{
   const ev=mv.filter(e=>e.pi===i),dice=ev.map(e=>e.d).join(', ')||'—';
   const route=ev.map(e=>e.sp?`${e.to} → ${e.dest} (${e.kind})`:String(e.to)).join(' · ')||'—';
-  return `<tr><td>${i+1}</td><td>${eh(p.name)}</td><td>${eh(ARQ[p.arch])}</td><td>${p.start}</td><td>${p.pos}</td><td>${eh(dice)}</td><td>${eh(route)}</td></tr>`;
+  return `<tr><td>${i+1}</td><td>${eh(p.name)}</td><td>${eh(ARQ[p.arch])}</td><td>${eh(p.work||'—')}</td><td>${p.start}</td><td>${p.pos}</td><td>${eh(dice)}</td><td>${eh(route)}</td></tr>`;
+ }).join('');
+ const playerSections=G.pl.map((p,i)=>{
+  const ev=mv.filter(e=>e.pi===i),seenP=new Set(),houses=[];
+  ev.forEach(e=>{[e.to,e.sp?e.dest:null].filter(Boolean).forEach(n=>{if(!seenP.has(n)){seenP.add(n);houses.push(n)}})});
+  const pEsp=ev.filter(e=>e.kind==='Espada'&&e.sp).length,pSer=ev.filter(e=>e.kind==='Serpente'&&e.sp).length;
+  return `<section class="player-page"><div class="house-head"><div class="house-no">PARTICIPANTE ${i+1}</div><h2>${eh(p.name)} — ${eh(ARQ[p.arch])}</h2></div>
+  <div class="player-work"><b>Ponto de trabalho</b><p>${eh(p.work||'—')}</p></div>
+  <p><b>Casa inicial:</b> ${p.start} &nbsp; · &nbsp; <b>Casa final:</b> ${p.pos} &nbsp; · &nbsp; <b>Turnos:</b> ${ev.length} &nbsp; · &nbsp; <b>Espadas:</b> ${pEsp} &nbsp; · &nbsp; <b>Serpentes:</b> ${pSer}</p>
+  <h3>Casas visitadas</h3><div class="house-list">${houses.map(n=>`<div><b>${n}</b> — ${eh(CASAS[n][0])}</div>`).join('')||'<div>—</div>'}</div></section>`;
  }).join('');
  const historyRows=G.h.map(e=>{
   if(e.man)return `<tr><td>—</td><td>${eh(G.pl[e.pi]?.name||'')}</td><td>—</td><td>${e.from} → ${e.to}</td><td>Correção manual</td></tr>`;
@@ -386,7 +395,7 @@ function exportJourneyPDF(){
  .cover{min-height:245mm;display:flex;flex-direction:column;justify-content:center;text-align:center;page-break-after:always}.cover .sub{letter-spacing:.35em;font-size:14pt;color:#80652b}.cover .report{margin-top:28px;font-size:17pt}.meta{margin:32px auto 0;max-width:155mm;text-align:left;border-top:1px solid #cbb57c;border-bottom:1px solid #cbb57c;padding:14px 0}.meta p{margin:5px 0}
  .section{page-break-before:always}.section:first-of-type{page-break-before:auto}table{width:100%;border-collapse:collapse;margin:8px 0 18px;font-size:9pt}th,td{border:1px solid #c9c0aa;padding:6px;vertical-align:top}th{background:#eee8d8;text-align:left;color:#4d3a13}
  .house-list{columns:2;column-gap:18px}.house-list div{break-inside:avoid;padding:3px 0}
- .house-page{page-break-before:always}.house-page.first{page-break-before:always}.house-head{border-bottom:2px solid #b49345;padding-bottom:6px;margin-bottom:12px}.house-no{font-size:10pt;letter-spacing:.18em;color:#8a6b24;font-weight:bold}.special{display:inline-block;margin-top:3px;padding:3px 7px;border:1px solid #bfa45d;border-radius:12px;font-size:8.8pt;color:#70551d}
+ .house-page,.player-page{page-break-before:always}.house-page.first{page-break-before:always}.house-head{border-bottom:2px solid #b49345;padding-bottom:6px;margin-bottom:12px}.house-no{font-size:10pt;letter-spacing:.18em;color:#8a6b24;font-weight:bold}.special{display:inline-block;margin-top:3px;padding:3px 7px;border:1px solid #bfa45d;border-radius:12px;font-size:8.8pt;color:#70551d}.player-work{background:#f5f1e6;border-left:3px solid #b49345;padding:10px 12px;margin:12px 0}.player-work p{margin:4px 0 0;font-size:12pt}
  .house-grid{display:grid;grid-template-columns:54mm 1fr;gap:10mm;align-items:start}.card-img img{width:100%;height:auto;display:block;border:1px solid #cbb57c}.house-copy p{margin:0 0 8px;text-align:justify}.resume{font-style:italic;background:#f5f1e6;padding:8px;border-left:3px solid #b49345}
  .note{font-size:8.5pt;color:#666}.footer-note{margin-top:18px;padding-top:8px;border-top:1px solid #ddd;font-size:8pt;color:#777}
  @media(max-width:700px){.house-grid{grid-template-columns:1fr}.card-img img{width:min(72vw,260px);margin:auto}.house-list{columns:1}}
@@ -394,10 +403,11 @@ function exportJourneyPDF(){
  </style></head><body>
  <div class="toolbar no-print"><button onclick="window.print()">IMPRIMIR / SALVAR COMO PDF</button></div>
  <section class="cover"><h1>MAHA LILAH</h1><div class="sub">O JOGO DA VIDA</div><div class="report">RELATÓRIO DA JORNADA</div>
- <div class="meta"><p><b>Data:</b> ${eh(G.date)}</p><p><b>Ponto de trabalho:</b> ${G.work||'—'}</p><p><b>Participantes:</b> ${G.pl.length}</p><p><b>Turnos:</b> ${mv.length} &nbsp; · &nbsp; <b>Espadas:</b> ${esp} &nbsp; · &nbsp; <b>Serpentes:</b> ${ser}</p><p><b>Casas diferentes visitadas:</b> ${vis.length}</p></div>
+ <div class="meta"><p><b>Data:</b> ${eh(G.date)}</p>${G.work?`<p><b>Ponto geral da jornada:</b> ${G.work}</p>`:''}<p><b>Participantes:</b> ${G.pl.length}</p><p><b>Turnos:</b> ${mv.length} &nbsp; · &nbsp; <b>Espadas:</b> ${esp} &nbsp; · &nbsp; <b>Serpentes:</b> ${ser}</p><p><b>Casas diferentes visitadas:</b> ${vis.length}</p></div>
  <p class="note">Relatório gerado ao encerramento da jornada.</p></section>
- <section class="section"><h2>Participantes e percurso</h2><table><thead><tr><th>#</th><th>Nome</th><th>Arquétipo</th><th>Início</th><th>Final</th><th>Dados</th><th>Casas / eventos</th></tr></thead><tbody>${playerRows}</tbody></table>
- <h2>Casas visitadas</h2><div class="house-list">${vis.map(n=>`<div><b>${n}</b> — ${eh(CASAS[n][0])}</div>`).join('')||'<div>—</div>'}</div></section>
+ <section class="section"><h2>Participantes e percurso</h2><table><thead><tr><th>#</th><th>Nome</th><th>Arquétipo</th><th>Ponto de trabalho</th><th>Início</th><th>Final</th><th>Dados</th><th>Casas / eventos</th></tr></thead><tbody>${playerRows}</tbody></table>
+ <h2>Casas visitadas na jornada</h2><div class="house-list">${vis.map(n=>`<div><b>${n}</b> — ${eh(CASAS[n][0])}</div>`).join('')||'<div>—</div>'}</div></section>
+ ${playerSections}
  <section class="section"><h2>Histórico cronológico</h2><table><thead><tr><th>Turno</th><th>Participante</th><th>Dado</th><th>Movimento</th><th>Evento</th></tr></thead><tbody>${historyRows}</tbody></table></section>
  ${housePages}
  <div class="footer-note">Os textos das casas reproduzem a base de conteúdo auditada utilizada pelo jogo.</div>
@@ -408,8 +418,8 @@ function exportJourneyPDF(){
 }
 function summary(){
  const {mv,vis,esp,ser}=journeyReportData();
- $('sumc').innerHTML=`<h1 class="ttl" style="font-size:40px">MAHA LILAH</h1><p class="sub">O JOGO DA VIDA</p><p><b>Data:</b> ${escapeHtml(String(G.date))}<br><b>Ponto de trabalho:</b> ${G.work||'—'}<br><b>Turnos:</b> ${mv.length} · <b>Espadas:</b> ${esp} · <b>Serpentes:</b> ${ser}</p>
- <h3>PARTICIPANTES</h3><table><tr><th>Ordem</th><th>Nome</th><th>Arquétipo</th><th>Casa inicial</th><th>Casa final</th><th>Dados</th></tr>${G.pl.map((p,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(String(p.name))}</td><td>${escapeHtml(String(ARQ[p.arch]))}</td><td>${p.start}</td><td>${p.pos}</td><td>${mv.filter(e=>e.pi===i).map(e=>e.d).join(', ')||'—'}</td></tr>`).join('')}</table>
+ $('sumc').innerHTML=`<h1 class="ttl" style="font-size:40px">MAHA LILAH</h1><p class="sub">O JOGO DA VIDA</p><p><b>Data:</b> ${escapeHtml(String(G.date))}${G.work?`<br><b>Ponto geral da jornada:</b> ${G.work}`:''}<br><b>Turnos:</b> ${mv.length} · <b>Espadas:</b> ${esp} · <b>Serpentes:</b> ${ser}</p>
+ <h3>PARTICIPANTES</h3><table><tr><th>Ordem</th><th>Nome</th><th>Arquétipo</th><th>Ponto de trabalho</th><th>Casa inicial</th><th>Casa final</th><th>Dados</th></tr>${G.pl.map((p,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(String(p.name))}</td><td>${escapeHtml(String(ARQ[p.arch]))}</td><td>${p.work||'—'}</td><td>${p.start}</td><td>${p.pos}</td><td>${mv.filter(e=>e.pi===i).map(e=>e.d).join(', ')||'—'}</td></tr>`).join('')}</table>
  <h3>HISTÓRICO COMPLETO</h3>${G.h.map(hline).join('')||'<small>Sem jogadas.</small>'}
  <h3>CASAS VISITADAS</h3><p>${vis.map(n=>`${n} — ${escapeHtml(String(CASAS[n][0]))}`).join('; ')||'—'}</p>
  <p style="margin-top:18px"><small>O PDF completo inclui capa, participantes, percurso, histórico, imagens das cartas, resumos e descrições completas das casas visitadas.</small></p>
