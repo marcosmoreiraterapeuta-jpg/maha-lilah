@@ -198,6 +198,11 @@
   $('#importInput').addEventListener('change', function(e){var input=e.target; var f=input.files && input.files[0]; if(!f) return; var fr=new FileReader(); fr.onload=function(){try{var data=JSON.parse(fr.result); if(!Array.isArray(data.packs)||!Array.isArray(data.smokes)||!Array.isArray(data.purchases)) throw new Error('invalid'); state=baseState(); state.quota=data.quota||20; state.activePackId=data.activePackId||state.activePackId; state.packs=(data.packs||[]).map(normalizePack); state.smokes=data.smokes||[]; state.purchases=data.purchases||[]; if(!state.packs.length) state.packs=clone(presetPacks); if(!state.packs.find(function(p){return p.id===state.activePackId;})) state.activePackId=state.packs[0].id; save(); render(); alert('Backup importado.');}catch(err){alert('Backup inválido.');} input.value='';}; fr.onerror=function(){alert('Não foi possível ler o backup neste aparelho.'); input.value='';}; fr.readAsText(f); });
   $('#resetBtn').addEventListener('click', function(){ if(confirm('Apagar todos os registros deste aparelho?') && confirm('Confirma a exclusão total?')){state=baseState(); save(); render(); $('#settings').classList.remove('open');} });
   render();
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('./fumometro-sw.js').catch(function(){});
+    });
+  }
   try { var ok=storageSet(JSON.stringify(state)); if(!ok && $('#storageStatus')) $('#storageStatus').innerHTML='⚠️ Este visualizador bloqueou o armazenamento. Os botões podem funcionar, mas para uso diário abra a versão publicada no navegador.'; } catch(e) {}
   setInterval(render, 60000);
 })();
