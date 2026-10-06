@@ -18,7 +18,7 @@
 .packnow{display:flex;justify-content:space-between;align-items:center;text-align:left;background:#12151b;border:1px solid var(--line);padding:11px 12px;border-radius:14px;margin-bottom:12px} .packnow small{display:block;color:var(--muted);margin-top:2px}
 .smokeBtn{width:100%;min-height:205px;border:0;border-radius:24px;background:radial-gradient(circle at 50% 28%,#303744 0,#20252e 42%,#15181e 78%);color:var(--text);box-shadow:inset 0 0 0 1px #363d49,0 10px 24px rgba(0,0,0,.22);overflow:hidden;touch-action:manipulation}
 .cwrap{height:138px;display:flex;align-items:center;justify-content:center;position:relative;overflow:visible;perspective:700px}
-.realCig{width:272px;height:43px;display:flex;align-items:stretch;position:relative;filter:drop-shadow(0 9px 8px rgba(0,0,0,.48));transform:rotate(-2deg);transform-origin:22% 50%}
+.realCig{width:272px;height:43px;display:flex;align-items:stretch;position:relative;filter:drop-shadow(0 9px 8px rgba(0,0,0,.48));transform:rotate(0deg);transform-origin:50% 50%}
 .filterTip{width:62px;flex:0 0 62px;border-radius:10px 0 0 10px;position:relative;background:
  radial-gradient(circle at 18% 25%,rgba(93,48,18,.24) 0 1px,transparent 1.4px),
  radial-gradient(circle at 70% 70%,rgba(255,225,177,.22) 0 1px,transparent 1.5px),
@@ -62,7 +62,7 @@
 .burn .ashParticle{animation:ashBits 1.25s ease-in .72s forwards}.burn .ap2{animation-delay:.83s}.burn .ap3{animation-delay:.94s}.burn .ap4{animation-delay:1.04s}
 @keyframes idleEmber{0%{filter:saturate(1);box-shadow:0 0 5px 2px rgba(255,72,24,.45),0 0 12px 4px rgba(255,117,24,.15)}100%{filter:saturate(1.35);box-shadow:0 0 10px 4px rgba(255,72,24,.68),0 0 22px 7px rgba(255,117,24,.25)}}
 @keyframes idleSmoke{0%{opacity:0;transform:translate(0,8px) scale(.65) rotate(-7deg)}25%{opacity:.24}60%{opacity:.16;transform:translate(10px,-24px) scale(1.05) rotate(10deg)}100%{opacity:0;transform:translate(-5px,-63px) scale(1.45) rotate(-15deg)}}
-@keyframes drawCig{0%{transform:rotate(-2deg) translateX(0)}22%{transform:rotate(-1deg) translateX(-3px)}55%{transform:rotate(-2.6deg) translateX(2px)}100%{transform:rotate(-2deg) translateX(0)}}
+@keyframes drawCig{0%{transform:rotate(0deg) translateX(0)}22%{transform:rotate(0deg) translateX(-2px)}55%{transform:rotate(0deg) translateX(2px)}100%{transform:rotate(0deg) translateX(0)}}
 @keyframes consumeReal{0%{width:210px}18%{width:205px}42%{width:166px}72%{width:92px}100%{width:13px}}
 @keyframes emberDraw{0%{filter:saturate(1.5) brightness(1.05);box-shadow:0 0 11px 4px rgba(255,62,18,.82),0 0 24px 8px rgba(255,133,22,.34)}100%{filter:saturate(1.8) brightness(1.28);box-shadow:0 0 17px 7px rgba(255,62,18,.95),0 0 31px 12px rgba(255,133,22,.43)}}
 @keyframes ashCapFall{0%,47%{opacity:1;transform:translate(0,0) rotate(2deg)}61%{transform:translate(3px,3px) rotate(12deg)}100%{opacity:0;transform:translate(25px,62px) rotate(118deg) scale(.72)}}
