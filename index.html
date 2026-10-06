@@ -394,7 +394,7 @@ function exportJourneyPDF(){
  </style></head><body>
  <div class="toolbar no-print"><button onclick="window.print()">IMPRIMIR / SALVAR COMO PDF</button></div>
  <section class="cover"><h1>MAHA LILAH</h1><div class="sub">O JOGO DA VIDA</div><div class="report">RELATÓRIO DA JORNADA</div>
- <div class="meta"><p><b>Data:</b> ${eh(G.date)}</p><p><b>Ponto de trabalho:</b> ${eh(G.work||'—')}</p><p><b>Participantes:</b> ${G.pl.length}</p><p><b>Turnos:</b> ${mv.length} &nbsp; · &nbsp; <b>Espadas:</b> ${esp} &nbsp; · &nbsp; <b>Serpentes:</b> ${ser}</p><p><b>Casas diferentes visitadas:</b> ${vis.length}</p></div>
+ <div class="meta"><p><b>Data:</b> ${eh(G.date)}</p><p><b>Ponto de trabalho:</b> ${G.work||'—'}</p><p><b>Participantes:</b> ${G.pl.length}</p><p><b>Turnos:</b> ${mv.length} &nbsp; · &nbsp; <b>Espadas:</b> ${esp} &nbsp; · &nbsp; <b>Serpentes:</b> ${ser}</p><p><b>Casas diferentes visitadas:</b> ${vis.length}</p></div>
  <p class="note">Relatório gerado ao encerramento da jornada.</p></section>
  <section class="section"><h2>Participantes e percurso</h2><table><thead><tr><th>#</th><th>Nome</th><th>Arquétipo</th><th>Início</th><th>Final</th><th>Dados</th><th>Casas / eventos</th></tr></thead><tbody>${playerRows}</tbody></table>
  <h2>Casas visitadas</h2><div class="house-list">${vis.map(n=>`<div><b>${n}</b> — ${eh(CASAS[n][0])}</div>`).join('')||'<div>—</div>'}</div></section>
@@ -408,7 +408,7 @@ function exportJourneyPDF(){
 }
 function summary(){
  const {mv,vis,esp,ser}=journeyReportData();
- $('sumc').innerHTML=`<h1 class="ttl" style="font-size:40px">MAHA LILAH</h1><p class="sub">O JOGO DA VIDA</p><p><b>Data:</b> ${escapeHtml(String(G.date))}<br><b>Ponto de trabalho:</b> ${escapeHtml(String(G.work||'—'))}<br><b>Turnos:</b> ${mv.length} · <b>Espadas:</b> ${esp} · <b>Serpentes:</b> ${ser}</p>
+ $('sumc').innerHTML=`<h1 class="ttl" style="font-size:40px">MAHA LILAH</h1><p class="sub">O JOGO DA VIDA</p><p><b>Data:</b> ${escapeHtml(String(G.date))}<br><b>Ponto de trabalho:</b> ${G.work||'—'}<br><b>Turnos:</b> ${mv.length} · <b>Espadas:</b> ${esp} · <b>Serpentes:</b> ${ser}</p>
  <h3>PARTICIPANTES</h3><table><tr><th>Ordem</th><th>Nome</th><th>Arquétipo</th><th>Casa inicial</th><th>Casa final</th><th>Dados</th></tr>${G.pl.map((p,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(String(p.name))}</td><td>${escapeHtml(String(ARQ[p.arch]))}</td><td>${p.start}</td><td>${p.pos}</td><td>${mv.filter(e=>e.pi===i).map(e=>e.d).join(', ')||'—'}</td></tr>`).join('')}</table>
  <h3>HISTÓRICO COMPLETO</h3>${G.h.map(hline).join('')||'<small>Sem jogadas.</small>'}
  <h3>CASAS VISITADAS</h3><p>${vis.map(n=>`${n} — ${escapeHtml(String(CASAS[n][0]))}`).join('; ')||'—'}</p>
