@@ -1,0 +1,16 @@
+{
+  "name": "Fumômetro",
+  "short_name": "Fumômetro",
+  "start_url": "./cigarro.html",
+  "display": "standalone",
+  "background_color": "#101217",
+  "theme_color": "#101217",
+  "icons": [
+    {
+      "src": "./fumometro-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
