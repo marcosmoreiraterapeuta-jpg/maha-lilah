@@ -355,7 +355,9 @@ names();
 const online={role:'local',connected:false,room:null,ref:null,last:'',applying:false,pending:false};
 const bar=document.createElement('div');bar.id='online-bar';bar.innerHTML='<span id="online-status">Modo local</span> <button id="online-create">Criar sala online</button> <button id="online-copy" hidden>Copiar link do cliente</button> <button id="online-delete" hidden>Excluir sala</button>';
 document.body.prepend(bar);
-const style=document.createElement('style');style.textContent='#online-bar{position:fixed;top:0;left:0;right:0;z-index:10000;background:#10291f;color:#e0c870;padding:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font:14px sans-serif}body{padding-top:54px}#online-bar button{font:14px sans-serif;padding:7px} @media print{#online-bar{display:none}}';document.head.append(style);
+const style=document.createElement('style');style.textContent=':root{--online-h:54px}#online-bar{position:fixed;top:0;left:0;right:0;z-index:10000;background:#10291f;color:#e0c870;padding:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font:14px sans-serif}body{padding-top:var(--online-h)}#rail{top:calc(var(--online-h) + 10px)!important}#pJ,#pH,#pA{top:calc(var(--online-h) + 10px)!important}#online-bar button{font:14px sans-serif;padding:7px}@media print{#online-bar{display:none}}';document.head.append(style);
+function adjustOnlineOffset(){document.documentElement.style.setProperty('--online-h',bar.offsetHeight+'px');}
+requestAnimationFrame(adjustOnlineOffset);window.addEventListener('resize',adjustOnlineOffset);if('ResizeObserver'in window)new ResizeObserver(adjustOnlineOffset).observe(bar);
 const status=t=>document.getElementById('online-status').textContent=t;
 const screenIds=['s1','s2','game','sum'];
 function sharedHousePanel(){const clone=$('panel').cloneNode(true);clone.querySelectorAll('[data-house-card]').forEach(img=>img.setAttribute('src','card:'+img.dataset.houseCard));return clone.innerHTML;}
