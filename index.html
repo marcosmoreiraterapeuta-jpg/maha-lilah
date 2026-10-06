@@ -91,7 +91,7 @@ button.arq.sel img,button.arq.sel:hover:not(:disabled) img{filter:drop-shadow(0 
 <div id="dock"><div id="die" onclick="doRoll()" title="Lançar o dado"></div><div id="dk"></div></div>
 <div id="pJ" class="fl pn"><b class="x" onclick="op('pJ')">✕</b><h4>JOGADORES</h4><div id="pls" class="row"></div></div>
 <div id="pH" class="fl pn"><b class="x" onclick="op('pH')">✕</b><div id="hist"></div></div>
-<div id="pA" class="fl pn"><b class="x" onclick="op('pA')">✕</b><div class="aud"><span>Música</span><input type="range" min="0" max="1" step=".05" value=".35" oninput="mv=+this.value;setV()"><span>Efeitos</span><input type="range" min="0" max="1" step=".05" value=".7" oninput="sv=+this.value;setV()"><button style="grid-column:1/3;padding:6px" onclick="mute=!mute;setV();this.textContent=mute?'ATIVAR SOM':'MUTE'">MUTE</button></div></div>
+<div id="pA" class="fl pn"><b class="x" onclick="op('pA')">✕</b><div class="aud"><span>Música</span><input type="range" min="0" max="1" step=".05" value=".6" oninput="mv=+this.value;setV()"><span>Efeitos</span><input type="range" min="0" max="1" step=".05" value="1" oninput="sv=+this.value;setV()"><button style="grid-column:1/3;padding:6px" onclick="mute=!mute;setV();this.textContent=mute?'ATIVAR SOM':'MUTE'">MUTE</button></div></div>
 <div id="pT" class="fl pn"><b class="x" onclick="op('pT')">✕</b><div id="panel"></div></div></section>
 <section id="sum" class="scr"><div class="card" id="sumc"></div></section>
 <div id="mod"><div class="card" id="modc"></div></div>
@@ -114,7 +114,7 @@ function snk(a,b){const p=cell(a),q=cell(b),dx=q.x-p.x,dy=q.y-p.y,L=Math.hypot(d
 function hl(l){$('hl').innerHTML=l.map(n=>{const c=cell(n);return`<ellipse class="glow" cx="${c.x}" cy="${c.y}" rx="112" ry="58" fill="#ffc84a" fill-opacity=".14" stroke="#ffd98a" stroke-width="4"/>`}).join('')}
 function op(id){$(id).classList.toggle('on')}
 /* ---------- áudio (Web Audio, sem arquivos externos) ---------- */
-let AC,mg,sg,NB,mv=.35,sv=.7,mute=false;
+let AC,mg,sg,NB,mv=.6,sv=1,mute=false;
 function au(){try{if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();mg=AC.createGain();sg=AC.createGain();mg.connect(AC.destination);sg.connect(AC.destination);
 NB=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;setV();
 startMeditationMusic()}
@@ -158,7 +158,7 @@ function startMeditationMusic(){
  schedule();const timer=setInterval(schedule,500);
 }
 
-function setV(){if(AC){mg.gain.value=mute?0:mv*.6;sg.gain.value=mute?0:sv}}
+function setV(){if(AC){mg.gain.value=mute?0:mv*.82;sg.gain.value=mute?0:sv}}
 function tone(f,t,d,ty,v,f2){if(!AC)return;const n=AC.currentTime+t,o=AC.createOscillator(),g=AC.createGain();o.type=ty||'sine';o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(v||.15,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(sg);o.start(n);o.stop(n+d+.05)}
 function nz(t,d,f,f2,q,v,ty){if(!AC)return;const n=AC.currentTime+t,s=AC.createBufferSource(),fl=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;fl.type=ty||'bandpass';fl.Q.value=q;fl.frequency.setValueAtTime(f,n);fl.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(.001,n);g.gain.linearRampToValueAtTime(v,n+d*.3);g.gain.exponentialRampToValueAtTime(.001,n+d);s.connect(fl);fl.connect(g);g.connect(sg);s.start(n,Math.random());s.stop(n+d+.05)}
 function tn(f,t,d,v){if(!AC)return;const n=AC.currentTime+t,o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,n);g.gain.linearRampToValueAtTime(v,n+.03);g.gain.exponentialRampToValueAtTime(.0005,n+d);o.connect(g);g.connect(sg);o.start(n);o.stop(n+d+.05)}
@@ -190,31 +190,36 @@ function woodDice(finalTap=false){
  source.onended=()=>source.disconnect();source.start();
 }
 function woodStep(){
-  if(mute||!AC)return;
+  if(mute||!AC||!sg)return;
   const t=AC.currentTime;
-  const o=AC.createOscillator(), g=AC.createGain(), f=AC.createBiquadFilter();
-  o.type='triangle';
-  o.frequency.setValueAtTime(300+Math.random()*45,t);
-  o.frequency.exponentialRampToValueAtTime(105,t+.06);
-  f.type='bandpass';f.frequency.value=820;f.Q.value=1.05;
-  g.gain.setValueAtTime(.0001,t);
-  g.gain.exponentialRampToValueAtTime(.34*sv,t+.003);
-  g.gain.exponentialRampToValueAtTime(.0001,t+.12);
-  o.connect(f);f.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.14);
-  nz(0,.055,700,1800,10,.11,'bandpass');
+  const hit=AC.createOscillator(), body=AC.createOscillator(), g=AC.createGain(), f=AC.createBiquadFilter();
+  hit.type='square';hit.frequency.setValueAtTime(520+Math.random()*60,t);hit.frequency.exponentialRampToValueAtTime(145,t+.035);
+  body.type='triangle';body.frequency.setValueAtTime(185+Math.random()*18,t);body.frequency.exponentialRampToValueAtTime(92,t+.09);
+  f.type='lowpass';f.frequency.value=1350;f.Q.value=.75;
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.5,t+.002);g.gain.exponentialRampToValueAtTime(.0001,t+.13);
+  hit.connect(f);body.connect(f);f.connect(g);g.connect(sg);
+  hit.start(t);body.start(t);hit.stop(t+.055);body.stop(t+.14);
+  nz(0,.07,520,1250,4,.18,'bandpass');
 }
 function tibetanChime(){
-  if(mute||!AC)return;
+  if(mute||!AC||!sg)return;
   const t=AC.currentTime;
-  const freqs=[261.63,392.0,523.25];
+  const freqs=[261.63,392.0,523.25,784];
   freqs.forEach((fr,i)=>{
     const o=AC.createOscillator(), g=AC.createGain();
-    o.type=i===0?'sine':'triangle';o.frequency.setValueAtTime(fr,t+i*.018);
+    o.type=i<2?'sine':'triangle';o.frequency.setValueAtTime(fr,t+i*.018);
     g.gain.setValueAtTime(.0001,t+i*.018);
-    g.gain.exponentialRampToValueAtTime((i===0?.12:.045)*sv,t+.04+i*.018);
-    g.gain.exponentialRampToValueAtTime(.0001,t+3.6+i*.18);
-    o.connect(g);g.connect(AC.destination);o.start(t+i*.018);o.stop(t+3.9+i*.18);
+    g.gain.exponentialRampToValueAtTime(i===0?.2:.065,t+.035+i*.018);
+    g.gain.exponentialRampToValueAtTime(.0001,t+4.2+i*.2);
+    o.connect(g);g.connect(sg);o.start(t+i*.018);o.stop(t+4.5+i*.2);
   });
+}
+function archetypeTick(step){
+  if(mute||!AC||!sg)return;
+  const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
+  o.type='sine';o.frequency.setValueAtTime(720+(step%6)*55,t);o.frequency.exponentialRampToValueAtTime(610+(step%6)*42,t+.09);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.11,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+.12);
+  o.connect(g);g.connect(sg);o.start(t);o.stop(t+.13);
 }
 const FX={dado(){woodDice()},res(){woodDice(true)},passo(){woodStep()},
 esp1(){nz(0,.8,2500,9000,3,.25,'bandpass');tn(1568,.1,1.6,.05)},esp2(){nz(0,1.8,600,6000,1.5,.25,'bandpass');tn(1318,.2,2,.05)},
@@ -246,11 +251,11 @@ function drawArchetype(){
  function tick(){
   buttons.forEach(button=>button.classList.remove('arq-lit'));
   const current=available[step%available.length];
-  buttons[current].classList.add('arq-lit');step++;
+  buttons[current].classList.add('arq-lit');archetypeTick(step);step++;
   if(step===steps){
    setTimeout(()=>{
     $('grid').classList.remove('arq-spinning');
-    archetypeSpinning=false;sel=current;archetypeDraw=current+1;gridR();
+    archetypeSpinning=false;sel=current;archetypeDraw=current+1;gridR();tibetanChime();
     $('arq-explanation').scrollIntoView({behavior:'smooth',block:'nearest'});
    },650);
    return;
