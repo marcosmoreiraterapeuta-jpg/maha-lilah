@@ -333,6 +333,8 @@ function apply(s){if(!s||s.v!==1)return;online.applying=true;try{G=s.G;ph=s.ph;U
 // Guests can scroll/read and adjust their own sound, but cannot change the journey.
 document.addEventListener('click',e=>{if(online.role!=='guest'&&!(online.role==='host'&&!online.connected))return;const b=e.target.closest('button,input,select,[onclick]');if(!b||bar.contains(b))return;const action=b.getAttribute('onclick')||'';if(/window.print|op\('(?:pT|snd)'\)|openHouseDetail|closeHouseDetail|consultHouse|closeHouseConsult/.test(action))return;e.preventDefault();e.stopImmediatePropagation();},true);
 document.addEventListener('keydown',e=>{if(online.role==='guest'&&e.target.matches('input,select,textarea')){e.preventDefault();}},true);
+// Keep setup text fields live in the shared snapshot while the facilitator types.
+document.addEventListener('input',e=>{if(online.role!=='host'||online.applying)return;if(e.target.matches('.nmi'))rd();},true);
 // Also guard programmatic game actions; server rules remain the authority.
 for(const name of ['setArchetypeMode','drawArchetype','selectArchetype','setN','toArq','conf','start','undo','doRoll','cont','fixP','endM','summary','newJ']){const original=window[name];window[name]=function(...args){if(online.role==='guest'&&!online.applying)return;if(online.role==='host'&&!online.connected&&!online.applying)return;return original.apply(this,args);};}
 let api;
