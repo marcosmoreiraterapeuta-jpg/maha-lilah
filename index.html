@@ -56,9 +56,9 @@ button:hover:not(:disabled){background:linear-gradient(#1d4a38,#0f2b20);color:#f
 select{width:100%;padding:8px;background:#050f0a;color:var(--cr);border:1px solid var(--g2);font:inherit;font-size:18px}
 #sum{overflow:auto;justify-content:center;padding:24px}#sum .card{width:min(900px,96vw);height:max-content}#sum table{width:100%;border-collapse:collapse;font-size:16px}#sum td,#sum th{border-bottom:1px solid #d6b06a44;padding:4px 6px;text-align:left;vertical-align:top}#sum h3{color:var(--g);letter-spacing:.12em;margin:20px 0 6px}
 @media(max-width:1100px){body{overflow:auto}#game.on{display:flex;flex-direction:column;position:static;min-height:100%}#M{height:70vw}#R{height:auto}#panel,#hist{max-height:60vh}}
-#game.on{display:block}#bd{position:absolute;left:0;right:0;top:0;bottom:96px;width:100%;height:auto}
+#game.on{display:block}#bd{position:absolute;inset:0;width:100%;height:100%}
 #rail{position:fixed;left:10px;top:10px;display:flex;flex-direction:column;gap:8px;z-index:6}#rail button{width:44px;height:44px;padding:0;font-size:20px;border-radius:50%;background:#07180fd9}
-#dock{position:fixed;bottom:10px;left:50%;right:auto;transform:translateX(-50%);display:flex;gap:12px;align-items:center;padding:7px 14px;border:1px solid var(--g);background:#06140ef2;border-radius:36px;box-shadow:0 8px 30px #000c;z-index:6;max-width:min(620px,90vw)}
+#dock{position:fixed;bottom:14px;right:18px;left:auto;transform:none;display:flex;gap:12px;align-items:center;padding:7px 14px;border:1px solid var(--g);background:#06140ee6;border-radius:36px;box-shadow:0 8px 30px #000c;z-index:6;max-width:min(520px,72vw)}
 #die{width:62px;height:62px;padding:9px;margin:0;cursor:pointer;border-radius:12px}#die i{width:10px;height:10px}
 #dk .vz{font:14px Cinzel,serif;letter-spacing:.08em;color:var(--g);margin-bottom:4px}#dk .bt{display:flex;gap:8px;flex-wrap:wrap}#dk .cta{background:linear-gradient(#2a5a44,#143626);color:#fff3d0}
 .fl{position:fixed;display:none;z-index:7;max-height:80vh;overflow:auto}.fl.on{display:block}.x{position:absolute;right:10px;top:6px;cursor:pointer;color:var(--g);font:16px Cinzel}
