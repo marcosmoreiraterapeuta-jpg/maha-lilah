@@ -79,8 +79,8 @@ button.arq.sel img,button.arq.sel:hover:not(:disabled) img{filter:drop-shadow(0 
 #grid button.arq.arq-lit img{filter:drop-shadow(0 0 7px #fff0b8) drop-shadow(0 0 20px #e9b94c) drop-shadow(0 0 32px #d99b3288)!important}
 </style></head><body>
 <section id="s1" class="scr on"><h1 class="ttl">MAHA LILAH</h1><p class="sub">O JOGO DA VIDA</p>
-<div class="card"><label>PONTO DE TRABALHO DA JORNADA <span style="opacity:.7">(opcional)</span></label><small>Tema comum da partida, caso exista. Cada participante terá também seu próprio ponto de trabalho abaixo.</small>
-<input type="text" id="work" maxlength="200" placeholder="Tema geral da jornada (opcional)" style="margin-top:6px">
+<div class="card"><div id="general-work-wrap"><label>QUAL É O SEU PONTO DE TRABALHO?</label><small>Qual é o ponto, questão ou desafio que será trabalhado nesta jornada?</small>
+<input type="text" id="work" maxlength="200" placeholder="Ponto de trabalho" style="margin-top:6px"></div>
 <label style="text-align:center;margin-top:20px">NÚMERO DE PARTICIPANTES</label>
 <div class="cnt"><button onclick="setN(-1)">−</button><b id="cn">1</b><button onclick="setN(1)">+</button></div><div id="names"></div>
 <div class="err" id="e1"></div><div style="text-align:center"><button class="big" onclick="toArq()">ESCOLHER ARQUÉTIPOS</button></div></div></section>
@@ -244,11 +244,17 @@ cheg(){tibetanChime()}};
 document.addEventListener('click',au,{once:false});
 /* ---------- setup ---------- */
 let cnt=1,NM=[''],PT=[''],ch={},st=0,sel=-1,G,ph='roll',U=[],PW=[],SNP={};
-function setN(d){rd();cnt=Math.max(1,Math.min(6,cnt+d));$('cn').textContent=cnt;NM.length=cnt;PT.length=cnt;for(let i=0;i<cnt;i++){NM[i]=NM[i]||'';PT[i]=PT[i]||''}names()}
+function setN(d){
+ rd();const old=cnt,next=Math.max(1,Math.min(6,cnt+d));if(next===cnt)return;
+ if(old===1&&next>1){PT[0]=$('work').value;$('work').value=''}
+ if(old>1&&next===1){$('work').value=PT[0]||''}
+ cnt=next;$('cn').textContent=cnt;NM.length=cnt;PT.length=cnt;for(let i=0;i<cnt;i++){NM[i]=NM[i]||'';PT[i]=PT[i]||''}names()
+}
 function rd(){document.querySelectorAll('.nmi').forEach((e,i)=>NM[i]=e.value);document.querySelectorAll('.pti').forEach((e,i)=>PT[i]=e.value)}
-function names(){$('names').innerHTML=NM.map((n,i)=>`<div class="participant-setup" style="margin-top:14px;padding:12px;border:1px solid #7f6a3a;border-radius:8px"><label>Participante ${i+1}</label><input type="text" class="nmi" maxlength="30" value="${String(n||'').replace(/"/g,'&quot;')}" placeholder="Nome"><label style="margin-top:10px">Ponto de trabalho</label><input type="text" class="pti" maxlength="200" value="${String(PT[i]||'').replace(/"/g,'&quot;')}" placeholder="Questão ou desafio deste participante"></div>`).join('')}
-function toArq(){rd();if(NM.some(n=>!n.trim())||PT.some(p=>!p.trim())){$('e1').textContent='Informe o nome e o ponto de trabalho de todos os participantes.';return}
-$('e1').textContent='';NM=NM.map(n=>escapeHtml(n.trim()));PT=PT.map(p=>escapeHtml(p.trim()));ch={};st=0;sel=-1;archetypeDraw=null;$('s1').classList.remove('on');$('s2').classList.add('on');gridR()}
+function updateWorkMode(){const one=cnt===1;$('general-work-wrap').hidden=!one}
+function names(){updateWorkMode();$('names').innerHTML=NM.map((n,i)=>cnt===1?`<div class="participant-setup" style="margin-top:14px;padding:12px;border:1px solid #7f6a3a;border-radius:8px"><label>Participante 1</label><input type="text" class="nmi" maxlength="30" value="${String(n||'').replace(/"/g,'&quot;')}" placeholder="Nome"></div>`:`<div class="participant-setup" style="margin-top:14px;padding:12px;border:1px solid #7f6a3a;border-radius:8px"><label>Participante ${i+1}</label><input type="text" class="nmi" maxlength="30" value="${String(n||'').replace(/"/g,'&quot;')}" placeholder="Nome"><label style="margin-top:10px">Ponto de trabalho</label><input type="text" class="pti" maxlength="200" value="${String(PT[i]||'').replace(/"/g,'&quot;')}" placeholder="Questão ou desafio deste participante"></div>`).join('')}
+function toArq(){rd();const one=cnt===1,work=$('work').value.trim();if(NM.some(n=>!n.trim())||(one?!work:PT.some(p=>!p.trim()))){$('e1').textContent=one?'Informe o ponto de trabalho e o nome do participante.':'Informe o nome e o ponto de trabalho de todos os participantes.';return}
+$('e1').textContent='';NM=NM.map(n=>escapeHtml(n.trim()));if(one)PT=[escapeHtml(work)];else PT=PT.map(p=>escapeHtml(p.trim()));ch={};st=0;sel=-1;archetypeDraw=null;$('s1').classList.remove('on');$('s2').classList.add('on');gridR()}
 const ARQ_DESC=["Convida a olhar a vida com confiança, simplicidade e abertura. Seu aprendizado é preservar a esperança sem deixar de reconhecer a realidade.", "Representa a busca por acolhimento e pertencimento. Convida a reconhecer as próprias dores, aceitar apoio e construir vínculos verdadeiros.", "Representa coragem, disciplina e capacidade de estabelecer limites. Convida a agir com firmeza, usando a força com consciência.", "Representa cuidado, generosidade e disposição para ajudar. Seu aprendizado é oferecer apoio sem esquecer as próprias necessidades.", "Representa liberdade, curiosidade e descoberta. Convida a percorrer novos caminhos e encontrar uma direção que faça sentido para você.", "Representa o encerramento de ciclos e a transformação. Convida a reconhecer o que perdeu o sentido, desapegar e abrir espaço para o novo, com responsabilidade.", "Representa afeto, presença e capacidade de criar vínculos. Convida a viver a conexão com sensibilidade, preservando a própria individualidade.", "Representa imaginação e expressão dos próprios dons. Convida a transformar ideias em algo concreto, acolhendo as imperfeições do processo.", "Representa responsabilidade, organização e liderança. Convida a cuidar do que está sob sua responsabilidade sem tentar controlar tudo.", "Representa transformação e a descoberta de novas possibilidades. Convida a ampliar a percepção e transformar compreensão em ação.", "Representa reflexão, discernimento e busca de compreensão. Convida a escutar, questionar e aproximar o conhecimento da experiência vivida.", "Representa espontaneidade, humor e leveza. Convida a estar presente e encontrar alegria sem perder o cuidado com as consequências."];
 let archetypeMode='manual',archetypeDraw=null,archetypeSpinning=false;
 function setArchetypeMode(mode){if(archetypeSpinning)return;if(mode!=='manual'&&mode!=='draw')return;archetypeMode=mode;archetypeDraw=null;sel=-1;gridR();}
@@ -299,7 +305,7 @@ function gridR(){renderArchetypeMode();$('who').textContent=`${NM[st].toUpperCas
 $('grid').innerHTML=ARQ.map((a,i)=>`<button aria-disabled="${archetypeMode==='draw'}" aria-pressed="${sel===i}" class="arq${sel===i?' sel':''}" ${i in ch?'disabled':''} onclick="selectArchetype(${i})"><img src="${IMG.h[i]}" alt="${a}"><span>${i+1} · ${a}</span><i>${i in ch?NM[ch[i]]:''}</i></button>`).join('');$('cf').disabled=archetypeSpinning||sel<0;renderArqExplanation()}
 function conf(){if(archetypeSpinning||sel<0||sel in ch)return;ch[sel]=st;sel=-1;archetypeDraw=null;st++;if(st<cnt)gridR();else start()}
 function start(){const pl=[];Object.keys(ch).forEach(a=>pl[ch[a]]={name:NM[ch[a]],work:PT[ch[a]],arch:+a,pos:6,start:6});
-G={work:escapeHtml($('work').value.trim()),date:new Date().toLocaleString('pt-BR'),pl,t:0,turnNo:0,h:[],cur:null,die:0};U=[];ph='roll';
+G={work:cnt===1?PT[0]:'',date:new Date().toLocaleString('pt-BR'),pl,t:0,turnNo:0,h:[],cur:null,die:0};U=[];ph='roll';
 $('s2').classList.remove('on');$('game').classList.add('on');drawBoard();panelEmpty();renderAll()}
 /* ---------- tabuleiro ---------- */
 const PAL=[['#7a4a1a','#d9a45a'],['#6a1515','#e8d27a'],['#2f4a1f','#9cc070'],['#4a3a1a','#c9a060'],['#5a1a1a','#d08a6a'],['#1f4a3a','#7ac0a0'],['#3a3a5a','#a0a8d0'],['#5a4a1a','#e0c870'],['#4a2a1a','#c08a5a'],['#283a4a','#88a8c0']];
