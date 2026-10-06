@@ -167,27 +167,36 @@ const PEN=[784,880,1046,1175,1318,1568];
 // Short, damped impacts: die edges and the hollow resonance of a wooden tabletop.
 function woodDice(finalTap=false){
  if(!AC||!sg)return;
- const rate=AC.sampleRate,duration=finalTap?.12:1;
+ const rate=AC.sampleRate,duration=finalTap?.16:1.15;
  const buffer=AC.createBuffer(1,Math.ceil(rate*duration),rate),data=buffer.getChannelData(0);
- const hits=finalTap?[0]:[0,.095,.205,.31,.405,.49,.56,.62,.673,.72,.762,.8,.835,.868];
+ const hits=finalTap?[0]:[0,.07,.145,.225,.315,.405,.49,.565,.635,.70,.758,.81,.855,.895,.93];
  hits.forEach((base,k)=>{
-  const at=base+(k?Math.random()*.012:0),strength=finalTap?.14:(.65*Math.pow(.83,k)+.045);
-  const pitch=.88+Math.random()*.24;
+  const at=base+(k?Math.random()*.018:0);
+  const decay=Math.pow(.84,k);
+  const strength=finalTap?.28:(.92*decay+.05);
+  const pitch=.82+Math.random()*.34;
   let smooth=0;
-  for(let j=0;j<rate*.105;j++){
+  const hitLen=Math.floor(rate*(finalTap?.13:.11));
+  for(let j=0;j<hitLen;j++){
    const index=Math.floor(at*rate)+j;if(index>=data.length)break;
-   const t=j/rate,noise=Math.random()*2-1;smooth=.52*smooth+.48*noise;
-   const attack=Math.min(1,t/.00035);
-   const click=noise*Math.exp(-t/ .0018)*.36;
-   const knock=smooth*Math.exp(-t/.012)*.65;
-   const body=Math.sin(2*Math.PI*410*pitch*t)*Math.exp(-t/.016)*.30
-     +Math.sin(2*Math.PI*930*pitch*t)*Math.exp(-t/.009)*.19
-     +Math.sin(2*Math.PI*1880*pitch*t)*Math.exp(-t/.004)*.10;
-   data[index]+=strength*attack*(click+knock+body);
+   const t=j/rate,noise=Math.random()*2-1;smooth=.42*smooth+.58*noise;
+   const attack=Math.min(1,t/.00022);
+   const click=noise*Math.exp(-t/.00125)*.42;
+   const edge=smooth*Math.exp(-t/.0075)*.62;
+   const shell=Math.sin(2*Math.PI*760*pitch*t)*Math.exp(-t/.012)*.28
+     +Math.sin(2*Math.PI*1320*pitch*t)*Math.exp(-t/.006)*.16;
+   const table=Math.sin(2*Math.PI*165*pitch*t)*Math.exp(-t/.055)*.34
+     +Math.sin(2*Math.PI*285*pitch*t)*Math.exp(-t/.03)*.20;
+   data[index]+=strength*attack*(click+edge+shell+table);
   }
  });
- const source=AC.createBufferSource();source.buffer=buffer;source.connect(sg);
- source.onended=()=>source.disconnect();source.start();
+ const source=AC.createBufferSource(), hp=AC.createBiquadFilter(), comp=AC.createDynamicsCompressor();
+ source.buffer=buffer;
+ hp.type='highpass';hp.frequency.value=85;
+ comp.threshold.value=-20;comp.knee.value=12;comp.ratio.value=3;comp.attack.value=.002;comp.release.value=.12;
+ source.connect(hp);hp.connect(comp);comp.connect(sg);
+ source.onended=()=>{source.disconnect();hp.disconnect();comp.disconnect();};
+ source.start();
 }
 function woodStep(){
   if(mute||!AC||!sg)return;
