@@ -91,7 +91,7 @@ button.arq.sel img,button.arq.sel:hover:not(:disabled) img{filter:drop-shadow(0 
 <div id="dock"><div id="die" onclick="doRoll()" title="Lançar o dado"></div><div id="dk"></div></div>
 <div id="pJ" class="fl pn"><b class="x" onclick="op('pJ')">✕</b><h4>JOGADORES</h4><div id="pls" class="row"></div></div>
 <div id="pH" class="fl pn"><b class="x" onclick="op('pH')">✕</b><div id="hist"></div></div>
-<div id="pA" class="fl pn"><b class="x" onclick="op('pA')">✕</b><div class="aud"><span>Música</span><input type="range" min="0" max="1" step=".05" value=".6" oninput="mv=+this.value;setV()"><span>Efeitos</span><input type="range" min="0" max="1" step=".05" value="1" oninput="sv=+this.value;setV()"><button style="grid-column:1/3;padding:6px" onclick="mute=!mute;setV();this.textContent=mute?'ATIVAR SOM':'MUTE'">MUTE</button></div></div>
+<div id="pA" class="fl pn"><b class="x" onclick="op('pA')">✕</b><div class="aud"><span>Música</span><input type="range" min="0" max="1" step=".05" value=".85" oninput="mv=+this.value;setV()"><span>Efeitos</span><input type="range" min="0" max="1" step=".05" value="1" oninput="sv=+this.value;setV()"><button style="grid-column:1/3;padding:6px" onclick="mute=!mute;setV();this.textContent=mute?'ATIVAR SOM':'MUTE'">MUTE</button></div></div>
 <div id="pT" class="fl pn"><b class="x" onclick="op('pT')">✕</b><div id="panel"></div></div></section>
 <section id="sum" class="scr"><div class="card" id="sumc"></div></section>
 <div id="mod"><div class="card" id="modc"></div></div>
@@ -114,7 +114,7 @@ function snk(a,b){const p=cell(a),q=cell(b),dx=q.x-p.x,dy=q.y-p.y,L=Math.hypot(d
 function hl(l){$('hl').innerHTML=l.map(n=>{const c=cell(n);return`<ellipse class="glow" cx="${c.x}" cy="${c.y}" rx="112" ry="58" fill="#ffc84a" fill-opacity=".14" stroke="#ffd98a" stroke-width="4"/>`}).join('')}
 function op(id){$(id).classList.toggle('on')}
 /* ---------- áudio (Web Audio, sem arquivos externos) ---------- */
-let AC,mg,sg,NB,mv=.6,sv=1,mute=false;
+let AC,mg,sg,NB,mv=.85,sv=1,mute=false;
 function au(){try{if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();mg=AC.createGain();sg=AC.createGain();mg.connect(AC.destination);sg.connect(AC.destination);
 NB=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;setV();
 startMeditationMusic()}
@@ -124,7 +124,7 @@ function startMeditationMusic(){
  const room=AC.createConvolver(),ir=AC.createBuffer(2,AC.sampleRate*2.8,AC.sampleRate);
  for(let c=0;c<2;c++){const data=ir.getChannelData(c);let smooth=0;for(let i=0;i<data.length;i++){smooth=.6*smooth+.4*(Math.random()*2-1);data[i]=smooth*Math.pow(1-i/data.length,3)*.35;}}
  room.buffer=ir;const wet=AC.createGain();wet.gain.value=.3;room.connect(wet);wet.connect(mg);
- const bus=AC.createGain();bus.gain.setValueAtTime(0,AC.currentTime);bus.gain.linearRampToValueAtTime(.85,AC.currentTime+6);bus.connect(mg);bus.connect(room);
+ const bus=AC.createGain();bus.gain.setValueAtTime(0,AC.currentTime);bus.gain.linearRampToValueAtTime(1,AC.currentTime+6);bus.connect(mg);bus.connect(room);
  function voice(f,t,d,v,kind){
   const env=AC.createGain();env.connect(bus);
   const attack=kind==='pad'?3:kind==='flute'?.45:.012;
@@ -158,7 +158,7 @@ function startMeditationMusic(){
  schedule();const timer=setInterval(schedule,500);
 }
 
-function setV(){if(AC){mg.gain.value=mute?0:mv*.82;sg.gain.value=mute?0:sv}}
+function setV(){if(AC){mg.gain.value=mute?0:mv*1.25;sg.gain.value=mute?0:sv}}
 function tone(f,t,d,ty,v,f2){if(!AC)return;const n=AC.currentTime+t,o=AC.createOscillator(),g=AC.createGain();o.type=ty||'sine';o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(v||.15,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(sg);o.start(n);o.stop(n+d+.05)}
 function nz(t,d,f,f2,q,v,ty){if(!AC)return;const n=AC.currentTime+t,s=AC.createBufferSource(),fl=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;fl.type=ty||'bandpass';fl.Q.value=q;fl.frequency.setValueAtTime(f,n);fl.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(.001,n);g.gain.linearRampToValueAtTime(v,n+d*.3);g.gain.exponentialRampToValueAtTime(.001,n+d);s.connect(fl);fl.connect(g);g.connect(sg);s.start(n,Math.random());s.stop(n+d+.05)}
 function tn(f,t,d,v){if(!AC)return;const n=AC.currentTime+t,o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,n);g.gain.linearRampToValueAtTime(v,n+.03);g.gain.exponentialRampToValueAtTime(.0005,n+d);o.connect(g);g.connect(sg);o.start(n);o.stop(n+d+.05)}
@@ -377,17 +377,23 @@ function journeyReportData(){
  mv.forEach(e=>{[e.to,e.sp?e.dest:null].filter(Boolean).forEach(n=>{if(!seen.has(n)){seen.add(n);vis.push(n)}})});
  return{mv,vis,turns:new Set(mv.map(e=>e.tn)).size,rolls:mv.length,esp:mv.filter(e=>e.kind==='Espada'&&e.sp).length,ser:mv.filter(e=>e.kind==='Serpente'&&e.sp).length};
 }
-function exportJourneyPDF(){
+function exportJourneyPDF(playerIndex){
  if(!G)return;
- const {mv,vis,turns,rolls,esp,ser}=journeyReportData(),eh=x=>escapeHtml(String(x??'')),base=new URL('.',location.href).href;
+ const person=Number(playerIndex),individual=Number.isInteger(person)&&person>=0&&person<G.pl.length;
+ const source=journeyReportData(),mv=individual?source.mv.filter(e=>e.pi===person):source.mv;
+ const vis=[],seen=new Set();
+ mv.forEach(e=>[e.to,e.sp?e.dest:null].filter(Boolean).forEach(n=>{if(!seen.has(n)){seen.add(n);vis.push(n)}}));
+ const turns=new Set(mv.map(e=>e.tn)).size,rolls=mv.length,esp=mv.filter(e=>e.kind==='Espada'&&e.sp).length,ser=mv.filter(e=>e.kind==='Serpente'&&e.sp).length;
+ const participants=individual?[{p:G.pl[person],i:person}]:G.pl.map((p,i)=>({p,i}));
+ const eh=x=>escapeHtml(String(x??'')),base=new URL('.',location.href).href;
  const w=window.open('','_blank');
  if(!w){modal('<p>O navegador bloqueou a janela do relatório. Libere pop-ups para esta página e tente novamente.</p><div class="row2"><button onclick="closeM()">OK</button></div>');return}
- const playerRows=G.pl.map((p,i)=>{
+ const playerRows=participants.map(({p,i})=>{
   const ev=mv.filter(e=>e.pi===i),dice=ev.map(e=>e.d).join(', ')||'—';
   const route=ev.map(e=>e.sp?`${e.to} → ${e.dest} (${e.kind})`:String(e.to)).join(' · ')||'—';
   return `<tr><td>${i+1}</td><td>${eh(p.name)}</td><td>${eh(ARQ[p.arch])}</td><td>${eh(p.work||'—')}</td><td>${p.start}</td><td>${p.pos}</td><td>${eh(dice)}</td><td>${eh(route)}</td></tr>`;
  }).join('');
- const playerSections=G.pl.map((p,i)=>{
+ const playerSections=participants.map(({p,i})=>{
   const ev=mv.filter(e=>e.pi===i),seenP=new Set(),houses=[];
   ev.forEach(e=>{[e.to,e.sp?e.dest:null].filter(Boolean).forEach(n=>{if(!seenP.has(n)){seenP.add(n);houses.push(n)}})});
   const pEsp=ev.filter(e=>e.kind==='Espada'&&e.sp).length,pSer=ev.filter(e=>e.kind==='Serpente'&&e.sp).length;
@@ -397,7 +403,7 @@ function exportJourneyPDF(){
   <p><b>Casa inicial:</b> ${p.start} &nbsp; · &nbsp; <b>Casa final:</b> ${p.pos} &nbsp; · &nbsp; <b>Turnos:</b> ${pTurns} &nbsp; · &nbsp; <b>Lançamentos:</b> ${ev.length} &nbsp; · &nbsp; <b>Espadas:</b> ${pEsp} &nbsp; · &nbsp; <b>Serpentes:</b> ${pSer}</p>
   <h3>Casas visitadas</h3><div class="house-list">${houses.map(n=>`<div><b>${n}</b> — ${eh(CASAS[n][0])}</div>`).join('')||'<div>—</div>'}</div></section>`;
  }).join('');
- const historyRows=G.h.map(e=>{
+ const historyRows=(individual?G.h.filter(e=>e.pi===person):G.h).map(e=>{
   if(e.man)return `<tr><td>—</td><td>${eh(G.pl[e.pi]?.name||'')}</td><td>—</td><td>${e.from} → ${e.to}</td><td>Correção manual</td></tr>`;
   const event=e.sp?`${e.kind}: ${e.to} → ${e.dest}`:(e.kind?`${e.kind} em ${e.to} (não executada)`:'—');
   return `<tr><td>${e.tn}</td><td>${eh(G.pl[e.pi]?.name||'')}</td><td>${e.d}</td><td>${eh((e.path||[]).join(' → '))}</td><td>${eh(event)}</td></tr>`;
@@ -410,7 +416,7 @@ function exportJourneyPDF(){
    <div class="house-copy"><h3>Resumo</h3><p class="resume">${eh(RESUMOS[n]||'')}</p><h3>Descrição completa</h3>${c[1].map(p=>`<p>${eh(p)}</p>`).join('')}</div></div>
   </section>`;
  }).join('');
- const doc=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><base href="${eh(base)}"><title>Maha Lilah — Jornada ${eh(G.date)}</title>
+ const doc=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><base href="${eh(base)}"><title>Maha Lilah — ${individual?eh(G.pl[person].name)+' — ':''}Jornada ${eh(G.date)}</title>
  <style>
  @page{size:A4;margin:14mm 13mm 16mm}
  *{box-sizing:border-box}body{font-family:Georgia,'Times New Roman',serif;color:#222;margin:0;background:#fff;line-height:1.45;font-size:10.5pt}
@@ -426,8 +432,8 @@ function exportJourneyPDF(){
  @media print{.no-print,.toolbar{display:none!important}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.house-page{break-before:page}.section{break-before:page}}
  </style></head><body>
  <div class="toolbar no-print"><button onclick="window.print()">IMPRIMIR / SALVAR COMO PDF</button></div>
- <section class="cover"><h1>MAHA LILAH</h1><div class="sub">O JOGO DA VIDA</div><div class="report">RELATÓRIO DA JORNADA</div>
- <div class="meta"><p><b>Data:</b> ${eh(G.date)}</p>${G.work?`<p><b>Ponto geral da jornada:</b> ${G.work}</p>`:''}<p><b>Participantes:</b> ${G.pl.length}</p><p><b>Turnos:</b> ${turns} &nbsp; · &nbsp; <b>Lançamentos:</b> ${rolls} &nbsp; · &nbsp; <b>Espadas:</b> ${esp} &nbsp; · &nbsp; <b>Serpentes:</b> ${ser}</p><p><b>Casas diferentes visitadas:</b> ${vis.length}</p></div>
+ <section class="cover"><h1>MAHA LILAH</h1><div class="sub">O JOGO DA VIDA</div><div class="report">${individual?'RELATÓRIO INDIVIDUAL':'RELATÓRIO DA JORNADA'}</div>
+ <div class="meta"><p><b>Data:</b> ${eh(G.date)}</p>${G.work?`<p><b>Ponto geral da jornada:</b> ${G.work}</p>`:''}${individual?`<p><b>Participante:</b> ${eh(G.pl[person].name)}</p><p><b>Arquétipo:</b> ${eh(ARQ[G.pl[person].arch])}</p><p><b>Ponto de trabalho:</b> ${eh(G.pl[person].work||'—')}</p>`:`<p><b>Participantes:</b> ${G.pl.length}</p>`}<p><b>Turnos:</b> ${turns} &nbsp; · &nbsp; <b>Lançamentos:</b> ${rolls} &nbsp; · &nbsp; <b>Espadas:</b> ${esp} &nbsp; · &nbsp; <b>Serpentes:</b> ${ser}</p><p><b>Casas diferentes visitadas:</b> ${vis.length}</p></div>
  <p class="note">Relatório gerado ao encerramento da jornada.</p></section>
  <section class="section"><h2>Participantes e percurso</h2><table><thead><tr><th>#</th><th>Nome</th><th>Arquétipo</th><th>Ponto de trabalho</th><th>Início</th><th>Final</th><th>Dados</th><th>Casas / eventos</th></tr></thead><tbody>${playerRows}</tbody></table>
  <h2>Casas visitadas na jornada</h2><div class="house-list">${vis.map(n=>`<div><b>${n}</b> — ${eh(CASAS[n][0])}</div>`).join('')||'<div>—</div>'}</div></section>
@@ -446,8 +452,8 @@ function summary(){
  <h3>PARTICIPANTES</h3><table><tr><th>Ordem</th><th>Nome</th><th>Arquétipo</th><th>Ponto de trabalho</th><th>Casa inicial</th><th>Casa final</th><th>Dados</th></tr>${G.pl.map((p,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(String(p.name))}</td><td>${escapeHtml(String(ARQ[p.arch]))}</td><td>${p.work||'—'}</td><td>${p.start}</td><td>${p.pos}</td><td>${mv.filter(e=>e.pi===i).map(e=>e.d).join(', ')||'—'}</td></tr>`).join('')}</table>
  <h3>HISTÓRICO COMPLETO</h3>${G.h.map(hline).join('')||'<small>Sem jogadas.</small>'}
  <h3>CASAS VISITADAS</h3><p>${vis.map(n=>`${n} — ${escapeHtml(String(CASAS[n][0]))}`).join('; ')||'—'}</p>
- <p style="margin-top:18px"><small>O PDF completo inclui capa, participantes, percurso, histórico, imagens das cartas, resumos e descrições completas das casas visitadas.</small></p>
- <div class="nop" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px"><button class="big" onclick="exportJourneyPDF()">GERAR PDF COMPLETO</button><button class="big" onclick="ask('Isso apagará os dados da jornada atual. Deseja iniciar uma nova jornada?','NOVA JORNADA',newJ)">NOVA JORNADA</button></div>`;
+ <p style="margin-top:18px"><small>Gere um PDF por participante com seu ponto de trabalho, percurso, histórico e as cartas visitadas. O PDF geral continua disponível.</small></p>
+ <div class="nop" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px"><button class="big" onclick="exportJourneyPDF()">PDF GERAL</button>${G.pl.map((p,i)=>`<button class="big" onclick="exportJourneyPDF(${i})">PDF — ${escapeHtml(String(p.name))}</button>`).join('')}<button class="big" onclick="ask('Isso apagará os dados da jornada atual. Deseja iniciar uma nova jornada?','NOVA JORNADA',newJ)">NOVA JORNADA</button></div>`;
  $('game').classList.remove('on');$('sum').classList.add('on')
 }
 function newJ(){G=null;U=[];cnt=1;NM=[''];PT=[''];ch={};$('work').value='';$('cn').textContent=1;names();$('sum').classList.remove('on');$('s1').classList.add('on')}
